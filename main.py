@@ -5,6 +5,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import os
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 import requests
 import time
 
@@ -45,14 +46,20 @@ def scraperLogic():
     url = 'https://www.skyscanner.com.au/transport/flights/mel/syd/240225/?adultsv2=1&airlines=-32166,-31933,-31694&cabinclass=economy&childrenv2=&departure-times=1080-1439&duration=180&inboundaltsenabled=false&outboundaltsenabled=false&ref=home&rtn=0&stops=!oneStop,!twoPlusStops'
 
     driver.get(url)
-    print("Waiting 30 seconds for all elements to load")
-    sleep(30)  # Waits for the page to load. Consider using WebDriver wait conditions instead for better reliability.
+    print("Waiting 25 seconds for all elements to load")
+    sleep(25)  # Waits for the page to load. Consider using WebDriver wait conditions instead for better reliability.
 
     loadMoreButtonXPath = "//button[@class='BpkButton_bpk-button__YzJlY BpkButton_bpk-button--secondary__OGE0O']"
-    driver.find_element(By.XPATH, loadMoreButtonXPath).click()
 
-    print("Waiting 8 seconds for all elements to load")
-    sleep(8)  # Waits for the page to load. Consider using WebDriver wait conditions instead for better reliability.
+    try:
+        # Try to find and click the "Load More" button
+        driver.find_element(By.XPATH, loadMoreButtonXPath).click()
+    except NoSuchElementException:
+        # If the button is not found, skip clicking and proceed
+        print("Load More button not found, proceeding without clicking.")
+
+    print("Waiting 5 seconds for all elements to load")
+    sleep(5)  # Waits for the page to load. Consider using WebDriver wait conditions instead for better reliability.
 
     # Use find_elements to get a list of elements
     flight_rows = driver.find_elements(By.XPATH, '//div[@class="EcoTicketWrapper_itineraryContainer__ZWE4O"]')
