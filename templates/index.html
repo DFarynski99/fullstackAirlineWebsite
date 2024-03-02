@@ -1,0 +1,25 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flight Scraper Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1 id="test">Welcome to the Flight Scraper</h1>
+    <form action="/" method="post">
+        <!-- Add any form inputs you need to collect data for the scraper here -->
+        <button id="scrapeFlightsButton" type="submit">Scrape Flights</button>
+    </form>
+
+    {% if results %}
+        <h2>Scraping Results</h2>
+        <ul>
+            {% for price, airline, departure in results %}
+                <li>{{ price }} - {{ airline }} - {{ departure }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
