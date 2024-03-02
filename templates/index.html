@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Flight Scraper Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
 </head>
 <body>
     <h1 id="test">Welcome to the Flight Scraper</h1>
@@ -22,5 +22,47 @@
             {% endfor %}
         </ul>
     {% endif %}
+
+
+    <div id="htmlBorder">
+
+
+    <label for="airline">Choose an Airline:</label>
+<select id="airline" name="airline">
+  <option value="jetstar">Jetstar</option>
+  <option value="regionalExpress">Regional Express</option>
+  <!-- Add more airlines here -->
+</select>
+
+<label for="departureAirport">Depart From:</label>
+<select id="departureAirport" name="departureAirport">
+  <option value="depSydney">Sydney</option>
+  <option value="depMelbourne">Melbourne</option>
+  <!-- Add more airlines here -->
+</select>
+
+<label for="arrivalAirport">Choose an Airline:</label>
+<select id="arrivalAirport" name="arrivalAirport">
+  <option value="arrSydney">Sydney</option>
+  <option value="arrMelbourne">Melbourne</option>
+  <!-- Add more airlines here -->
+</select>
+
+
+<!-- Departure Date Selector -->
+<label for="departureDate">Departure Date:</label>
+<input type="date" id="departureDate" name="departureDate">
+
+<!-- Return Date Selector -->
+<label for="returnDate">Return Date (optional):</label>
+<input type="date" id="returnDate" name="returnDate">
+
+<button id="searchButton">Search</button>
+
+
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js')}}"></script>
 </body>
 </html>
