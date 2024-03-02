@@ -1,9 +1,6 @@
 from time import sleep, time
-import pandas as pd
-import requests as requests
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import os
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import requests
@@ -32,7 +29,7 @@ def check_prices_and_notify(lst_prices):
         price_value = float(price_str.replace('$', ''))
 
         # Check if the price is below $200
-        if price_value < 200:
+        if price_value < 140:
             print(f"Price dropped to ${price_value}, sending notification...")
             notify_ifttt(f'$ {price_value}')
             print("")
@@ -43,7 +40,7 @@ def check_prices_and_notify(lst_prices):
 
 def scraperLogic():
     driver = webdriver.Chrome()
-    url = 'https://www.skyscanner.com.au/transport/flights/mel/syd/240225/?adultsv2=1&airlines=-32166,-31933,-31694&cabinclass=economy&childrenv2=&departure-times=1080-1439&duration=180&inboundaltsenabled=false&outboundaltsenabled=false&ref=home&rtn=0&stops=!oneStop,!twoPlusStops'
+    url = 'https://www.skyscanner.com.au/transport/flights/ool/syd/240309/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=0'
 
     driver.get(url)
     print("Waiting 25 seconds for all elements to load")
@@ -150,14 +147,14 @@ def clearVariables():
     lst_departure.clear()
 
 
-def main():
-    while True:  # This loop will run indefinitely
-        scraperLogic()
-        check_prices_and_notify(lst_prices)
-        clearVariables()
-        print("Sleeping for 900 seconds (15 minutes) before checking again...")
-        time.sleep(900)  # Sleep after checking all prices, before starting over
+def perform_scrape():
+    clearVariables()  # Clear previous data
+    scraperLogic()  # Perform scraping
+    check_prices_and_notify(lst_prices)
+    # Format your results here
+    results = list(zip(lst_prices, lst_airline, lst_departure))
+    return results
 
 
 if __name__ == "__main__":
-    main()
+    perform_scrape()

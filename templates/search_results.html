@@ -1,0 +1,16 @@
+<!-- templates/search_results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flight Search Results</title>
+</head>
+<body>
+    <h1>Flight Search Results</h1>
+    <ul>
+        {% for price, airline, departure in results %}
+            <li>{{ price }} - {{ airline }} - {{ departure }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
