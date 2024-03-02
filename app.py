@@ -1,21 +1,18 @@
-from flask import Flask, render_template
-from main import perform_scrape  # Make sure this is the correct function to call
+from flask import Flask, render_template, request
+from main import perform_scrape
+import os
 
 app = Flask(__name__)
 
-
-@app.route('/')
-def index():
-    return "Welcome to my Flight Scraper!"
-
-
-@app.route('/search', methods=['GET'])
-def search():
-    # Call perform_scrape to get the data
-    results = perform_scrape()
-    # Render the template with the results
-    return render_template('search_results.html', results=results)
-
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    results = []
+    if request.method == 'POST':
+        # Perform the scrape when the form is submitted
+        results = perform_scrape()
+        # Render index.html with results, which could be passed back to the same page
+    return render_template('index.html', results=results)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

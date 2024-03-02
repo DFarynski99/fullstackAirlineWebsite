@@ -29,7 +29,7 @@ def check_prices_and_notify(lst_prices):
         price_value = float(price_str.replace('$', ''))
 
         # Check if the price is below $200
-        if price_value < 140:
+        if price_value < 55:
             print(f"Price dropped to ${price_value}, sending notification...")
             notify_ifttt(f'$ {price_value}')
             print("")
