@@ -1,10 +1,10 @@
-from time import sleep, time
+from time import sleep
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-import requests
-import time
+import requests  # Add this line to import the requests module
+from selenium.webdriver.chrome.options import Options
 
 lst_prices = []
 lst_airline = []
@@ -14,11 +14,10 @@ lst_departure = []
 def notify_ifttt(price):
     event_name = 'price_drop'
     key = 'o68zKbvAHahsn_vcuM8O_PHpKoBIN_aCzS0e22_wHBd'  # Replace with your IFTTT Webhooks key
-    url = f'https://maker.ifttt.com/trigger/price-drop/with/key/o68zKbvAHahsn_vcuM8O_PHpKoBIN_aCzS0e22_wHBd'
+    url = f'https://maker.ifttt.com/trigger/price-drop/with/key/{key}'
 
     # Data to pass to the email body, you can add more with Value2, Value3 etc.
     data = {'value1': lst_prices, 'value2': lst_airline, 'value3': lst_departure}
-    requests.post(url, json=data)
     response = requests.post(url, json=data)
     print(f'Notification sent for price drop: {lst_prices}')
 
@@ -29,7 +28,7 @@ def check_prices_and_notify(lst_prices):
         price_value = float(price_str.replace('$', ''))
 
         # Check if the price is below $200
-        if price_value < 55:
+        if price_value < 200:
             print(f"Price dropped to ${price_value}, sending notification...")
             notify_ifttt(f'$ {price_value}')
             print("")
@@ -39,10 +38,35 @@ def check_prices_and_notify(lst_prices):
 
 
 def scraperLogic():
-    driver = webdriver.Chrome()
-    url = 'https://www.skyscanner.com.au/transport/flights/ool/syd/240309/?adultsv2=1&cabinclass=economy&childrenv2=&inboundaltsenabled=false&outboundaltsenabled=false&preferdirects=false&ref=home&rtn=0'
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+
+    driver = webdriver.Chrome(options=options)
+
+    url = 'https://www.skyscanner.com.au/transport/flights/bne/per/240419/?adults=1&adultsv2=1&airlines=-31940,-31876,-32646,-32166,-32076,-31694,multiple&cabinclass=economy&children=0&childrenv2=&destinationentityid=27545934&duration=1080&inboundaltsenabled=false&infants=0&originentityid=27539494&outboundaltsenabled=false&ref=home&rtn=0&stops=!oneStop,!twoPlusStops'
 
     driver.get(url)
+
+    try:
+        # Adjusted for Selenium 4: Using By.CLASS_NAME to specify the search criterion
+        captcha_element = driver.find_element(By.CLASS_NAME, "g-recaptcha")
+        print("CAPTCHA detected.")
+    except NoSuchElementException:
+        print("No CAPTCHA detected.")
+
+    # Checking for specific text indicating a CAPTCHA challenge
+    page_source = driver.page_source.lower()
+    if "captcha" in page_source or "are you a robot?" in page_source:
+        print("CAPTCHA challenge text found on the page.")
+
+    # Check for unexpected page titles or URLs that might indicate a CAPTCHA
+    if "CAPTCHA" in driver.title:
+        print("Page title suggests a CAPTCHA is present.")
+
     print("Waiting 25 seconds for all elements to load")
     sleep(25)  # Waits for the page to load. Consider using WebDriver wait conditions instead for better reliability.
 
@@ -50,7 +74,9 @@ def scraperLogic():
 
     try:
         # Try to find and click the "Load More" button
-        driver.find_element(By.XPATH, loadMoreButtonXPath).click()
+        load_more_button = driver.find_element(By.XPATH, loadMoreButtonXPath)
+        driver.execute_script("arguments[0].click();", load_more_button)
+
     except NoSuchElementException:
         # If the button is not found, skip clicking and proceed
         print("Load More button not found, proceeding without clicking.")
