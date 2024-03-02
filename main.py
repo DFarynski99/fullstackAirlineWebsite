@@ -5,6 +5,10 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import requests  # Add this line to import the requests module
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
+
 
 lst_prices = []
 lst_airline = []
@@ -38,14 +42,15 @@ def check_prices_and_notify(lst_prices):
 
 
 def scraperLogic():
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920x1080")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+    # Setup Chrome options
+    chrome_options = ChromeOptions()
+    chrome_options.headless = True  # Enable headless mode
 
-    driver = webdriver.Chrome(options=options)
+    # Initialize the Remote WebDriver
+    driver = webdriver.Remote(
+        command_executor='http://localhost:4444/wd/hub',
+        options=chrome_options  # Specify ChromeOptions here
+    )
 
     url = 'https://www.skyscanner.com.au/transport/flights/bne/per/240419/?adults=1&adultsv2=1&airlines=-31940,-31876,-32646,-32166,-32076,-31694,multiple&cabinclass=economy&children=0&childrenv2=&destinationentityid=27545934&duration=1080&inboundaltsenabled=false&infants=0&originentityid=27539494&outboundaltsenabled=false&ref=home&rtn=0&stops=!oneStop,!twoPlusStops'
 
