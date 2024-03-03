@@ -168,17 +168,38 @@ def scraperLogic():
     driver.quit()  # Ensure the driver is quit even if an error occurs
 
 
-def jetstarScrape():
+def jetstarScrape(options):
     driver = webdriver.Chrome()
     url = 'https://www.jetstar.com/au/en/home'
     driver.get(url)
 
-    print("Sleeping for 15 seconds to let all elements load")
-    sleep(5)
+    print("Sleeping for 8 seconds to let all elements load")
+    sleep(8)
 
     departureAirportDropdownXPath = '//*[@id="flockSearch"]/form/div[1]'
     driver.find_element(By.XPATH, departureAirportDropdownXPath).click()
-    sleep(5)
+    sleep(3)
+    if 'departureAirport' in options and options['departureAirport'] == 'depSydney':
+        sydneyDepXpath = '//*[@id="popoverContent"]/div/div/div[2]/div[20]'
+        driver.find_element(By.XPATH, sydneyDepXpath).click()
+        sleep(2)  # Adjust sleep as needed
+
+    elif 'departureAirport' in options and options['departureAirport'] == 'depMelbourneTullamarine':
+        melbourneTullamarineDepXpath = '//*[@id="popoverContent"]/div/div/div[2]/div[15]'
+        driver.find_element(By.XPATH, melbourneTullamarineDepXpath).click()
+        sleep(2)  # Adjust sleep as needed
+
+    # open up dropdown for arrivals, then as below do the arrival if,elif loop to find the correct arrival
+    arrivalAirportDropdownXPath = '//*[@id="flockSearch"]/form/div[2]'
+    driver.find_element(By.XPATH, arrivalAirportDropdownXPath).click()
+    sleep(2)
+    if 'arrivalAirport' in options and options['arrivalAirport'] == 'arrSydney':
+        sydneyArrXPath = '//*[@id="popoverContent"]/div/div/div[2]/div[15]'
+        driver.find_element(By.XPATH, sydneyArrXPath).click()
+
+    elif 'arrivalAirport' in options and options['arrivalAirport'] == 'arrMelbourneTullamarine':
+        melbourneTullamarineArrXPath = '//*[@id="popoverContent"]/div/div/div[2]/div[11]'
+        driver.find_element(By.XPATH, melbourneTullamarineArrXPath).click()
 
 
 def clearVariables():

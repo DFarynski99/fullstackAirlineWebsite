@@ -19,6 +19,22 @@
     <!-- Include other form elements here -->
     <button id="scrapeFlightsButton" type="submit" name="action" value="scrapeFlights">Scrape Flights</button>
     <button id="searchButton" type="submit" name="action" value="searchFlights">Search</button>
+
+    <label for="departureAirport">Depart From:</label>
+<select id="departureAirport" name="departureAirport">
+     <option value="depSydney">Sydney</option>
+     <option value="depMelbourneTullamarine">Melbourne (Tullamarine)</option>
+</select>
+
+    <label for="arrivalAirport">Arrival Airport:</label>
+<select id="arrivalAirport" name="arrivalAirport">
+  <option value="arrSydney">Sydney</option>
+  <option value="arrMelbourneTullamarine">Melbourne (Tullamarine)</option>
+  <!-- Add more airlines here -->
+</select>
+
+
+
 </form>
 
 
@@ -41,19 +57,9 @@
 
 
 
-<label for="departureAirport">Depart From:</label>
-<select id="departureAirport" name="departureAirport">
-  <option value="depSydney">Sydney</option>
-  <option value="depMelbourne">Melbourne</option>
-  <!-- Add more airlines here -->
-</select>
 
-<label for="arrivalAirport">Choose an Airline:</label>
-<select id="arrivalAirport" name="arrivalAirport">
-  <option value="arrSydney">Sydney</option>
-  <option value="arrMelbourne">Melbourne</option>
-  <!-- Add more airlines here -->
-</select>
+
+
 
 
 <!-- Departure Date Selector -->

@@ -11,20 +11,27 @@ def home():
     if request.method == 'POST':
         action = request.form['action']
         if action == 'searchFlights':
-            airline = request.form.get('airline')
-            if airline == 'jetstar':
-                message = "Jetstar is selected"
-                jetstarScrape()
-                message = "Jetstar is selected"
-            elif airline == 'qantas':
+
+            options = {
+                'airline': request.form.get('airline'),
+                'departureAirport': request.form.get('departureAirport'),
+                'arrivalAirport': request.form.get('arrivalAirport'),
+                'departureDate': request.form.get('departureDate'),
+                'returnDate': request.form.get('returnDate', None)  # Optional, defaults to None if not present
+            }
+
+            if options['airline'] == 'jetstar':
+                message = jetstarScrape(options)
+
+            elif options['airline'] == 'qantas':
                 message = "Qantas is selected"
-            elif airline == 'regionalExpress':
+            elif options['airline'] == 'regionalExpress':
                 message = "Regional Express is selected"
-            # Add actions for 'searchFlights'
+                # Add more conditions for other airlines
 
+            elif action == 'scrapeFlights':
+                message = "Scrape Flights button pressed"
 
-        elif action == 'scrapeFlights':
-            message = "Scrape Flights button pressed"
     return render_template('index.html', message=message)
 
 
