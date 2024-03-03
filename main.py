@@ -1,10 +1,13 @@
 from time import sleep
 from selenium import webdriver
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import requests  # Add this line to import the requests module
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
 
 lst_prices = []
 lst_airline = []
@@ -168,38 +171,72 @@ def scraperLogic():
     driver.quit()  # Ensure the driver is quit even if an error occurs
 
 
-def jetstarScrape(options):
+def jetstarScrape(options, flight_type):
     driver = webdriver.Chrome()
     url = 'https://www.jetstar.com/au/en/home'
     driver.get(url)
 
     print("Sleeping for 8 seconds to let all elements load")
-    sleep(8)
+    sleep(4)
 
+    combobox_panels = driver.find_elements(By.CLASS_NAME, "comboboxpanel_panel__8Zbd2")
+
+    # Assuming the departure combobox is the first one and destination is the second one
+    departure_combobox = combobox_panels[0]
+    destination_combobox = combobox_panels[1]
     departureAirportDropdownXPath = '//*[@id="flockSearch"]/form/div[1]'
     driver.find_element(By.XPATH, departureAirportDropdownXPath).click()
-    sleep(3)
+    sleep(2)
+
     if 'departureAirport' in options and options['departureAirport'] == 'depSydney':
-        sydneyDepXpath = '//*[@id="popoverContent"]/div/div/div[2]/div[20]'
-        driver.find_element(By.XPATH, sydneyDepXpath).click()
-        sleep(2)  # Adjust sleep as needed
+        sydney_departure_option = departure_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Sydney - SYD')]")
+        sydney_departure_option.click()
+        sleep(2)
 
     elif 'departureAirport' in options and options['departureAirport'] == 'depMelbourneTullamarine':
-        melbourneTullamarineDepXpath = '//*[@id="popoverContent"]/div/div/div[2]/div[15]'
-        driver.find_element(By.XPATH, melbourneTullamarineDepXpath).click()
-        sleep(2)  # Adjust sleep as needed
+        melbourneTullamarine_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
+        melbourneTullamarine_departure_option.click()
+        sleep(2)
 
-    # open up dropdown for arrivals, then as below do the arrival if,elif loop to find the correct arrival
     arrivalAirportDropdownXPath = '//*[@id="flockSearch"]/form/div[2]'
     driver.find_element(By.XPATH, arrivalAirportDropdownXPath).click()
     sleep(2)
-    if 'arrivalAirport' in options and options['arrivalAirport'] == 'arrSydney':
-        sydneyArrXPath = '//*[@id="popoverContent"]/div/div/div[2]/div[15]'
-        driver.find_element(By.XPATH, sydneyArrXPath).click()
 
+    if 'arrivalAirport' in options and options['arrivalAirport'] == 'arrSydney':
+        sydney_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                  ".//div[contains(text(), 'Sydney - SYD')]")
+        sydney_arrival_option.click()
+        sleep(2)
     elif 'arrivalAirport' in options and options['arrivalAirport'] == 'arrMelbourneTullamarine':
-        melbourneTullamarineArrXPath = '//*[@id="popoverContent"]/div/div/div[2]/div[11]'
-        driver.find_element(By.XPATH, melbourneTullamarineArrXPath).click()
+        melbourneTullamarine_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
+        melbourneTullamarine_arrival_option.click()
+        sleep(2)
+
+    # Handle one-way flight logic
+    if flight_type == 'one-way':
+        print("One Way")
+        date_picker_button = driver.find_element(By.XPATH, '//*[@id="flockSearch"]/form/div[3]/div/div[1]')
+        date_picker_button.click()
+
+        # Check if 'departureDate' is in the options and not empty
+        if 'departureDate' in options and options['departureDate']:
+            desired_date = datetime.strptime(options['departureDate'], '%Y-%m-%d')
+            wait = WebDriverWait(driver, 10)
+
+        # Scrape the Month Year on Jetstar and hardcode March 2024 === 2024/03 so on so forth,
+        # Compare to YYYY/MM provided by user on front end
+        # IF YYYY/MM > scraped date, click back a month, ELIF YYYY/MM < scraped date, click forward a month, ELSE stay
+        # Then code logic for finding and clicking appropriate date
+        pass
+
+    # Handle return flight logic
+    elif flight_type == 'return':
+        # Your logic for return flights
+        # In addition to the one-way logic, you will also select the return date
+        print("Return")
+        pass
 
 
 def clearVariables():
