@@ -20,8 +20,12 @@ def home():
                 'returnDate': request.form.get('returnDate', None)  # Optional, defaults to None if not present
             }
 
+            # Determine if this is a one-way or return flight based on whether a return date is provided
+            flight_type = 'return' if options['returnDate'] else 'one-way'
+
             if options['airline'] == 'jetstar':
-                message = jetstarScrape(options)
+                # Pass the flight type to your scraping function
+                message = jetstarScrape(options, flight_type)
 
             elif options['airline'] == 'qantas':
                 message = "Qantas is selected"
@@ -36,5 +40,5 @@ def home():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 4444))
     app.run(host='0.0.0.0', port=port, debug=True)
