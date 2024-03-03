@@ -9,10 +9,18 @@
 </head>
 <body>
     <h1 id="test">Welcome to the Flight Scraper</h1>
-    <form action="/" method="post">
-        <!-- Add any form inputs you need to collect data for the scraper here -->
-        <button id="scrapeFlightsButton" type="submit">Scrape Flights</button>
-    </form>
+<form action="/" method="post">
+    <label for="airline">Choose an Airline:</label>
+    <select id="airline" name="airline">
+      <option value="jetstar">Jetstar</option>
+      <option value="regionalExpress">Regional Express</option>
+      <!-- Add more airlines here -->
+    </select>
+    <!-- Include other form elements here -->
+    <button id="scrapeFlightsButton" type="submit" name="action" value="scrapeFlights">Scrape Flights</button>
+    <button id="searchButton" type="submit" name="action" value="searchFlights">Search</button>
+</form>
+
 
     {% if results %}
         <h2>Scraping Results</h2>
@@ -23,16 +31,15 @@
         </ul>
     {% endif %}
 
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+
 
     <div id="htmlBorder">
 
 
-    <label for="airline">Choose an Airline:</label>
-<select id="airline" name="airline">
-  <option value="jetstar">Jetstar</option>
-  <option value="regionalExpress">Regional Express</option>
-  <!-- Add more airlines here -->
-</select>
+
 
 <label for="departureAirport">Depart From:</label>
 <select id="departureAirport" name="departureAirport">
@@ -57,7 +64,6 @@
 <label for="returnDate">Return Date (optional):</label>
 <input type="date" id="returnDate" name="returnDate">
 
-<button id="searchButton">Search</button>
 
 
 

@@ -6,7 +6,6 @@ from selenium.common.exceptions import NoSuchElementException
 import requests  # Add this line to import the requests module
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
-
 lst_prices = []
 lst_airline = []
 lst_departure = []
@@ -167,6 +166,19 @@ def scraperLogic():
         print(lst_prices[i] + " - " + lst_airline[i] + " - " + lst_departure[i])
     print("")
     driver.quit()  # Ensure the driver is quit even if an error occurs
+
+
+def jetstarScrape():
+    driver = webdriver.Chrome()
+    url = 'https://www.jetstar.com/au/en/home'
+    driver.get(url)
+
+    print("Sleeping for 15 seconds to let all elements load")
+    sleep(5)
+
+    departureAirportDropdownXPath = '//*[@id="flockSearch"]/form/div[1]'
+    driver.find_element(By.XPATH, departureAirportDropdownXPath).click()
+    sleep(5)
 
 
 def clearVariables():
