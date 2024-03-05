@@ -8,6 +8,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
+from selenium.webdriver.chrome.options import Options
+import sys
+import os
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium_stealth import stealth
+from twocaptcha.solver import TwoCaptcha
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 lst_prices = []
 lst_airline = []
@@ -171,10 +181,30 @@ def scraperLogic():
     driver.quit()  # Ensure the driver is quit even if an error occurs
 
 
-def jetstarScrape(options, flight_type):
-    driver = webdriver.Chrome()
+def jetstarScrape(functionality, flight_type):
+    options = Options()
+    options.add_argument("start-maximized")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
+
+    # Correct path to chromedriver.exe
+    s = Service('C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe')
+    driver = webdriver.Chrome(service=s, options=options)
+
+    # Apply selenium-stealth settings
+    stealth(driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True,
+            )
+
     url = 'https://www.jetstar.com/au/en/home'
     driver.get(url)
+    # Perform any necessary actions to establish your session
+    # Include these cookies in subsequent requests or actions
 
     print("Sleeping for 8 seconds to let all elements load")
     sleep(8)
@@ -188,12 +218,12 @@ def jetstarScrape(options, flight_type):
     driver.find_element(By.XPATH, departureAirportDropdownXPath).click()
     sleep(2)
 
-    if 'departureAirport' in options and options['departureAirport'] == 'depSydney':
+    if 'departureAirport' in functionality and functionality['departureAirport'] == 'depSydney':
         sydney_departure_option = departure_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Sydney - SYD')]")
         sydney_departure_option.click()
         sleep(2)
 
-    elif 'departureAirport' in options and options['departureAirport'] == 'depMelbourneTullamarine':
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depMelbourneTullamarine':
         melbourneTullamarine_departure_option = departure_combobox.find_element(By.XPATH,
                                                                                 ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
         melbourneTullamarine_departure_option.click()
@@ -203,12 +233,12 @@ def jetstarScrape(options, flight_type):
     driver.find_element(By.XPATH, arrivalAirportDropdownXPath).click()
     sleep(2)
 
-    if 'arrivalAirport' in options and options['arrivalAirport'] == 'arrSydney':
+    if 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrSydney':
         sydney_arrival_option = destination_combobox.find_element(By.XPATH,
                                                                   ".//div[contains(text(), 'Sydney - SYD')]")
         sydney_arrival_option.click()
         sleep(2)
-    elif 'arrivalAirport' in options and options['arrivalAirport'] == 'arrMelbourneTullamarine':
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrMelbourneTullamarine':
         melbourneTullamarine_arrival_option = destination_combobox.find_element(By.XPATH,
                                                                                 ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
         melbourneTullamarine_arrival_option.click()
@@ -221,9 +251,14 @@ def jetstarScrape(options, flight_type):
         date_picker_button = driver.find_element(By.XPATH, '//*[@id="flockSearch"]/form/div[3]/div/div[1]')
         date_picker_button.click()
 
+        oneWayButtonLocator = (By.XPATH, '//*[@id="popoverContent"]/div/div/div/div[1]/div[1]/span/label[2]')
+        # Wait until the one-way button is visible and then click it
+        oneWayButton = wait.until(EC.visibility_of_element_located(oneWayButtonLocator))
+        oneWayButton.click()
+
         # Check if 'departureDate' is in the options and not empty
-        if 'departureDate' in options and options['departureDate']:
-            desired_date = datetime.strptime(options['departureDate'], '%Y-%m-%d')
+        if 'departureDate' in functionality and functionality['departureDate']:
+            desired_date = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
             wait = WebDriverWait(driver, 10)
 
         datePickerOptions = driver.find_elements(By.CLASS_NAME, "daypicker__caption_label--c-UgT")
@@ -232,7 +267,7 @@ def jetstarScrape(options, flight_type):
         leftMMYY = datePickerOptions[0].text
         rightMMYY = datePickerOptions[1].text
 
-        departure_date_obj = datetime.strptime(options['departureDate'], '%Y-%m-%d')
+        departure_date_obj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
         formatted_date = departure_date_obj.strftime('%B %Y')
 
         if leftMMYY == formatted_date:
@@ -240,6 +275,7 @@ def jetstarScrape(options, flight_type):
 
         else:
             while leftMMYY != formatted_date:
+                sleep(2)
                 print("Current month is " + leftMMYY + ". Clicking next month button...")
 
                 # Click the next month button
@@ -260,7 +296,38 @@ def jetstarScrape(options, flight_type):
                 leftMMYY = datePickerOptions[0].text
                 print("Updated month is " + leftMMYY)
 
+        # Add date selection logic
+        dayPickerOptions = driver.find_elements(By.CLASS_NAME, "daypicker__tbody--UL-3t")
+        leftDaySelectBlock = dayPickerOptions[0]
+        rightDaySelectBlock = dayPickerOptions[1]
+
+        fullDepartureObj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
+        formatted_date_id = fullDepartureObj.strftime('%d-%m-%Y')  # Format date to match ID format
+
+        buttonsInLeftBlock = leftDaySelectBlock.find_elements(By.CSS_SELECTOR,
+                                                              '.daypicker__button_reset--inqB7.daypicker__button--ayiU1.daypicker__day--FYuDG')
+
+        for WebElement in buttonsInLeftBlock:
+            fullDepartureObj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
+
+            # Format the date to match the expected 'dd-mm-yyyy' ID format, including leading zeros
+            formatted_date_id = fullDepartureObj.strftime('%d-%m-%Y')
+            element_id = WebElement.get_attribute('id')
+            if element_id == formatted_date_id:
+                print(f"Found the matching date button: {formatted_date_id}")
+                sleep(2)
+                WebElement.click()  # Click the button if it's the right date
+                break  # Exit the loop since we've found the correct date button
+            else:
+                print(f"Current element ID: {element_id} does not match {formatted_date_id}")
+
         sleep(5)
+        submitPATH = driver.find_element(By.XPATH, '//*[@id="popoverContent"]/div/div/div/div[3]/button')
+        submitPATH.click()
+        sleep(5)
+        searchButtonPATH = driver.find_element(By.XPATH, '//*[@id="fs-search-btn"]')
+        searchButtonPATH.click()
+        sleep(10)
 
         # Scrape the Month Year on Jetstar and hardcode March 2024 === 2024/03 so on so forth,
         # Compare to YYYY/MM provided by user on front end
@@ -274,6 +341,29 @@ def jetstarScrape(options, flight_type):
         # In addition to the one-way logic, you will also select the return date
         print("Return")
         pass
+
+    # Replace 'YOUR_2CAPTCHA_API_KEY' with your actual 2Captcha API key
+    api_key = 'c4d24eaca65b2982a0710f09c28d8dbe'
+
+    solver = TwoCaptcha(api_key)
+
+    try:
+        result = solver.recaptcha(
+            sitekey='6Ld-zbkUAAAAAB_gkIieRFcyI4V93OJwX0GuUrlU',
+            url='https://booking.jetstar.com/au/en/booking/select-flights'
+        )
+        print('solved: ' + str(result))
+        recaptcha_text_area = driver.find_element(By.ID, 'g-recaptcha-response')
+        driver.execute_script("arguments[0].style.display = 'block';", recaptcha_text_area)
+        driver.execute_script(f"document.getElementById('g-recaptcha-response-1').value='{result['code']}';")
+        # Failed to solve CAPTCHA: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="g-recaptcha-response"]"}
+
+    except Exception as e:
+        print('Failed to solve CAPTCHA:', e)
+        sleep(1000)
+
+
+
 
 
 def clearVariables():

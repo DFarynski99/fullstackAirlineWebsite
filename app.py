@@ -12,7 +12,7 @@ def home():
         action = request.form['action']
         if action == 'searchFlights':
 
-            options = {
+            functionality = {
                 'airline': request.form.get('airline'),
                 'departureAirport': request.form.get('departureAirport'),
                 'arrivalAirport': request.form.get('arrivalAirport'),
@@ -21,15 +21,15 @@ def home():
             }
 
             # Determine if this is a one-way or return flight based on whether a return date is provided
-            flight_type = 'return' if options['returnDate'] else 'one-way'
+            flight_type = 'return' if functionality['returnDate'] else 'one-way'
 
-            if options['airline'] == 'jetstar':
+            if functionality['airline'] == 'jetstar':
                 # Pass the flight type to your scraping function
-                message = jetstarScrape(options, flight_type)
+                message = jetstarScrape(functionality, flight_type)
 
-            elif options['airline'] == 'qantas':
+            elif functionality['airline'] == 'qantas':
                 message = "Qantas is selected"
-            elif options['airline'] == 'regionalExpress':
+            elif functionality['airline'] == 'regionalExpress':
                 message = "Regional Express is selected"
                 # Add more conditions for other airlines
 
@@ -40,5 +40,5 @@ def home():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 4444))
+    port = int(os.environ.get('PORT', 1000))
     app.run(host='0.0.0.0', port=port, debug=True)
