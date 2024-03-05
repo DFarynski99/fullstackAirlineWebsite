@@ -177,7 +177,7 @@ def jetstarScrape(options, flight_type):
     driver.get(url)
 
     print("Sleeping for 8 seconds to let all elements load")
-    sleep(4)
+    sleep(8)
 
     combobox_panels = driver.find_elements(By.CLASS_NAME, "comboboxpanel_panel__8Zbd2")
 
@@ -224,6 +224,39 @@ def jetstarScrape(options, flight_type):
         if 'departureDate' in options and options['departureDate']:
             desired_date = datetime.strptime(options['departureDate'], '%Y-%m-%d')
             wait = WebDriverWait(driver, 10)
+
+        datePickerOptions = driver.find_elements(By.CLASS_NAME, "daypicker__caption_label--c-UgT")
+
+        # Assuming the departure combobox is the first one and destination is the second one
+        leftMMYY = datePickerOptions[0].text
+        rightMMYY = datePickerOptions[1].text
+
+        departure_date_obj = datetime.strptime(options['departureDate'], '%Y-%m-%d')
+        formatted_date = departure_date_obj.strftime('%B %Y')
+
+        if leftMMYY == formatted_date:
+            print("leftMMYY matches the user input date")
+
+        else:
+            while leftMMYY != formatted_date:
+                print("No match")
+                nextMonthButtonXPath = driver.find_element(By.XPATH,'//*[@id="popoverContent"]/div/div/div/div[2]/div[2]/div/div[2]/div/div/button')
+                nextMonthButtonXPath.click()
+                print("Next month button clicked")
+                sleep(2)
+                # Logic almost complete, just need to dynamically update the leftMMYY value otherwise it will loop forever
+
+        sleep(5)
+
+        # Strip the user input date form into Month Year
+        # Compare user input Month Year to current leftMMYY and rightMMYY
+        # IF user input Month Year is == to leftMMYY then stay,
+        # ELSE click nextMonth button, recheck if inputMonthYear is == to leftMMYY, keep going till match
+        # (Make sure the user input date Month Year is == to leftMMYY)
+        # Once userInput Month Year == leftMMYY, begin date searching logic
+
+
+
 
         # Scrape the Month Year on Jetstar and hardcode March 2024 === 2024/03 so on so forth,
         # Compare to YYYY/MM provided by user on front end
