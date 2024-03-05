@@ -1,7 +1,7 @@
 from time import sleep
 from selenium import webdriver
 from bs4 import BeautifulSoup
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import requests  # Add this line to import the requests module
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
@@ -216,6 +216,7 @@ def jetstarScrape(options, flight_type):
 
     # Handle one-way flight logic
     if flight_type == 'one-way':
+        wait = WebDriverWait(driver, 10)
         print("One Way")
         date_picker_button = driver.find_element(By.XPATH, '//*[@id="flockSearch"]/form/div[3]/div/div[1]')
         date_picker_button.click()
@@ -239,24 +240,27 @@ def jetstarScrape(options, flight_type):
 
         else:
             while leftMMYY != formatted_date:
-                print("No match")
-                nextMonthButtonXPath = driver.find_element(By.XPATH,'//*[@id="popoverContent"]/div/div/div/div[2]/div[2]/div/div[2]/div/div/button')
+                print("Current month is " + leftMMYY + ". Clicking next month button...")
+
+                # Click the next month button
+                nextMonthButtonXPath = driver.find_element(By.XPATH,
+                                                           '//*[@id="popoverContent"]/div/div/div/div[2]/div[2]/div/div[2]/div/div/button')
                 nextMonthButtonXPath.click()
-                print("Next month button clicked")
-                sleep(2)
-                # Logic almost complete, just need to dynamically update the leftMMYY value otherwise it will loop forever
+
+                # Wait for the text of the datePickerOptions to be updated to the new month
+                try:
+                    wait.until_not(
+                        EC.text_to_be_present_in_element((By.CLASS_NAME, "daypicker__caption_label--c-UgT"), leftMMYY))
+                except TimeoutException:
+                    print("Timed out waiting for the month to update after clicking next month button.")
+                    break  # Exit the loop if the month doesn't update
+
+                # Re-find the element to get the updated text after the page content has changed
+                datePickerOptions = driver.find_elements(By.CLASS_NAME, "daypicker__caption_label--c-UgT")
+                leftMMYY = datePickerOptions[0].text
+                print("Updated month is " + leftMMYY)
 
         sleep(5)
-
-        # Strip the user input date form into Month Year
-        # Compare user input Month Year to current leftMMYY and rightMMYY
-        # IF user input Month Year is == to leftMMYY then stay,
-        # ELSE click nextMonth button, recheck if inputMonthYear is == to leftMMYY, keep going till match
-        # (Make sure the user input date Month Year is == to leftMMYY)
-        # Once userInput Month Year == leftMMYY, begin date searching logic
-
-
-
 
         # Scrape the Month Year on Jetstar and hardcode March 2024 === 2024/03 so on so forth,
         # Compare to YYYY/MM provided by user on front end
