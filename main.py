@@ -1,15 +1,10 @@
 from time import sleep
-from selenium import webdriver
-from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import requests  # Add this line to import the requests module
-from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
-from selenium.webdriver.chrome.options import Options
 import sys
 import os
 from selenium import webdriver
@@ -18,7 +13,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium_stealth import stealth
 from twocaptcha.solver import TwoCaptcha
 import time
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -60,7 +54,7 @@ def jetstarScrape(functionality, flight_type):
     options.add_experimental_option('useAutomationExtension', False)
     options.add_argument("--headless")  # Runs Chrome in headless mode.
 
-    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64'
+    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver'
     # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
     # Change based on system path to chromedriver.exe
 
@@ -278,7 +272,7 @@ def qantasScrape(functionality, flight_type):
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
 
-    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64'
+    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver'
     # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
     # Change based on system path to chromedriver.exe
 
@@ -306,6 +300,45 @@ def qantasScrape(functionality, flight_type):
     # Perform any necessary actions to establish your session
     # Include these cookies in subsequent requests or actions
     wait = WebDriverWait(driver, 10)
+
+    airport_code_mapping = {
+        'depSydney': 'SYD',
+        'depMelbourneTullamarine': 'MEL',
+        # Add more mappings as needed
+    }
+
+    menuOpen = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-gn7407-LargeButton')))
+    menuOpen.click()
+
+    originAirportPath = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-shnplr-runway-dialog-button__value--large-LargeButton')))
+    originAirportPath.click()
+
+    if 'departureAirport' in functionality and 'arrivalAirport' in functionality:
+        # Define a mapping from the form value to the airport code
+
+        dep_value = functionality['departureAirport']
+        origin_airport_code = airport_code_mapping.get(dep_value, 'Unknown')  # Get the airport code, or 'Unknown' if not found
+
+        text_area = driver.find_element(By.CSS_SELECTOR, ".css-1mu1mk2")  # Replace "textAreaId" with the actual ID or locator
+        text_area.clear()  # It's a good practice to clear the field first, in case there is any pre-filled data
+        text_area.send_keys(origin_airport_code)
+
+        departureAirportPath = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, 'css-kx5i2d-runway-popup-field__placeholder-LargeButton')))
+        departureAirportPath.click()
+
+        arr_value = functionality['arrivalAirport']
+        departure_airport_code = airport_code_mapping.get(arr_value, 'Unknown')  # Get the airport code, or 'Unknown' if not found
+
+        text_area = driver.find_element(By.CSS_SELECTOR, ".css-1mu1mk2")  # Replace "textAreaId" with the actual ID or locator
+        text_area.clear()  # It's a good practice to clear the field first, in case there is any pre-filled data
+        text_area.send_keys(departure_airport_code)
+
+
+
+    sleep(10)
 
 
 def clearVariables():
