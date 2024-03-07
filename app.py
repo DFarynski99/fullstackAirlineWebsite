@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request
 from main import jetstarScrape  # Import your scraping functions
+from main import qantasScrape  # Import your scraping functions
 
 app = Flask(__name__)
 
@@ -28,7 +29,7 @@ def home():
                 message = jetstarScrape(functionality, flight_type)
 
             elif functionality['airline'] == 'qantas':
-                message = "Qantas is selected"
+                message = qantasScrape(functionality, flight_type)
             elif functionality['airline'] == 'regionalExpress':
                 message = "Regional Express is selected"
                 # Add more conditions for other airlines

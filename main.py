@@ -3,6 +3,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import requests  # Add this line to import the requests module
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,6 +17,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium_stealth import stealth
 from twocaptcha.solver import TwoCaptcha
+import time
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -50,145 +53,23 @@ def check_prices_and_notify(lst_prices):
             print("")
 
 
-def scraperLogic():
-    # Setup Chrome options
-    chrome_options = ChromeOptions()
-    chrome_options.headless = True  # Enable headless mode
-
-    # Initialize the Remote WebDriver
-    driver = webdriver.Remote(
-        command_executor='http://localhost:4444/wd/hub',
-        options=chrome_options  # Specify ChromeOptions here
-    )
-
-    url = 'https://www.skyscanner.com.au/transport/flights/bne/per/240419/?adults=1&adultsv2=1&airlines=-31940,-31876,-32646,-32166,-32076,-31694,multiple&cabinclass=economy&children=0&childrenv2=&destinationentityid=27545934&duration=1080&inboundaltsenabled=false&infants=0&originentityid=27539494&outboundaltsenabled=false&ref=home&rtn=0&stops=!oneStop,!twoPlusStops'
-
-    driver.get(url)
-
-    try:
-        # Adjusted for Selenium 4: Using By.CLASS_NAME to specify the search criterion
-        captcha_element = driver.find_element(By.CLASS_NAME, "g-recaptcha")
-        print("CAPTCHA detected.")
-    except NoSuchElementException:
-        print("No CAPTCHA detected.")
-
-    # Checking for specific text indicating a CAPTCHA challenge
-    page_source = driver.page_source.lower()
-    if "captcha" in page_source or "are you a robot?" in page_source:
-        print("CAPTCHA challenge text found on the page.")
-
-    # Check for unexpected page titles or URLs that might indicate a CAPTCHA
-    if "CAPTCHA" in driver.title:
-        print("Page title suggests a CAPTCHA is present.")
-
-    print("Waiting 25 seconds for all elements to load")
-    sleep(25)  # Waits for the page to load. Consider using WebDriver wait conditions instead for better reliability.
-
-    loadMoreButtonXPath = "//button[@class='BpkButton_bpk-button__YzJlY BpkButton_bpk-button--secondary__OGE0O']"
-
-    try:
-        # Try to find and click the "Load More" button
-        load_more_button = driver.find_element(By.XPATH, loadMoreButtonXPath)
-        driver.execute_script("arguments[0].click();", load_more_button)
-
-    except NoSuchElementException:
-        # If the button is not found, skip clicking and proceed
-        print("Load More button not found, proceeding without clicking.")
-
-    print("Waiting 5 seconds for all elements to load")
-    sleep(5)  # Waits for the page to load. Consider using WebDriver wait conditions instead for better reliability.
-
-    # Use find_elements to get a list of elements
-    flight_rows = driver.find_elements(By.XPATH, '//div[@class="EcoTicketWrapper_itineraryContainer__ZWE4O"]')
-    flight_rows_emissions = driver.find_elements(By.XPATH, '//div[@class="EcoTicketWrapper_ecoContainer__YjNmN"]')
-
-    for WebElement in flight_rows:
-        elementHTML = WebElement.get_attribute('outerHTML')
-        elementSoup = BeautifulSoup(elementHTML, 'html.parser')
-
-        # price
-        temp_price = elementSoup.find("div", {"class": "Price_mainPriceContainer__MDM3O"})
-        if temp_price:  # Check if the price element is found
-            price = temp_price.find("span", {"class": "BpkText_bpk-text__MWZkY BpkText_bpk-text--lg__NjNhN"})
-            if price:  # Check if the span containing the price is found
-                lst_prices.append(price.text)
-
-    for WebElement in flight_rows:
-        elementHTML = WebElement.get_attribute('outerHTML')
-        elementSoup = BeautifulSoup(elementHTML, 'html.parser')
-
-        # Attempt to find the airline name within the current WebElement
-        temp_airline = elementSoup.find("div", {"class": "FlightsTicketBody_container__OTEwN"})
-        if temp_airline:
-            airline = temp_airline.find("span", {"class": "BpkText_bpk-text__MWZkY BpkText_bpk-text--xs__ZDJmY"})
-            if airline:
-                lst_airline.append(
-                    airline.text.strip())  # Added strip() to remove potential leading/trailing whitespace
-
-    for WebElement in flight_rows:
-        elementHTML = WebElement.get_attribute('outerHTML')
-        elementSoup = BeautifulSoup(elementHTML, 'html.parser')
-
-        # Attempt to find the airline name within the current WebElement
-        temp_departure = elementSoup.find("div", {"class": "LegInfo_routePartialDepart__NzEwY"})
-        if temp_departure:
-            departure = temp_departure.find("span",
-                                            {"class": "BpkText_bpk-text__MWZkY BpkText_bpk-text--subheading__NzkwO"})
-            if departure:
-                lst_departure.append(
-                    departure.text.strip())  # Added strip() to remove potential leading/trailing whitespace
-
-    for WebElement in flight_rows_emissions:
-        elementHTML = WebElement.get_attribute('outerHTML')
-        elementSoup = BeautifulSoup(elementHTML, 'html.parser')
-
-        temp_price = elementSoup.find("div", {"class": "Price_mainPriceContainer__MDM3O"})
-        if temp_price:  # Check if the price element is found
-            price = temp_price.find("span", {"class": "BpkText_bpk-text__MWZkY BpkText_bpk-text--lg__NjNhN"})
-            if price:  # Check if the span containing the price is found
-                lst_prices.append(price.text)
-
-    for WebElement in flight_rows_emissions:
-        elementHTML = WebElement.get_attribute('outerHTML')
-        elementSoup = BeautifulSoup(elementHTML, 'html.parser')
-
-        # Attempt to find the airline name within the current WebElement
-        temp_airline = elementSoup.find("div", {"class": "FlightsTicketBody_container__OTEwN"})
-        if temp_airline:
-            airline = temp_airline.find("span", {"class": "BpkText_bpk-text__MWZkY BpkText_bpk-text--xs__ZDJmY"})
-            if airline:
-                lst_airline.append(
-                    airline.text.strip())  # Added strip() to remove potential leading/trailing whitespace
-
-    for WebElement in flight_rows_emissions:
-        elementHTML = WebElement.get_attribute('outerHTML')
-        elementSoup = BeautifulSoup(elementHTML, 'html.parser')
-
-        # Attempt to find the airline name within the current WebElement
-        temp_departure = elementSoup.find("div", {"class": "LegInfo_routePartialArrive__Y2U1N"})
-        if temp_departure:
-            departure = temp_departure.find("span",
-                                            {"class": "BpkText_bpk-text__MWZkY BpkText_bpk-text--subheading__NzkwO"})
-            if departure:
-                lst_departure.append(
-                    departure.text.strip())  # Added strip() to remove potential leading/trailing whitespace
-
-    print("These are the flight matching your search filters:")
-    print("--------------------------------------------------")
-    for i in range(len(lst_prices)):
-        print(lst_prices[i] + " - " + lst_airline[i] + " - " + lst_departure[i])
-    print("")
-    driver.quit()  # Ensure the driver is quit even if an error occurs
-
-
 def jetstarScrape(functionality, flight_type):
     options = Options()
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument("--headless")  # Runs Chrome in headless mode.
 
-    # Correct path to chromedriver.exe
-    s = Service('C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe')
+    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64'
+    # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
+    # Change based on system path to chromedriver.exe
+
+    # Macbook directory
+    s = Service('/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver')
+
+    # Windows directory
+    # s = Service(pathWindows)
+
     driver = webdriver.Chrome(service=s, options=options)
 
     # Apply selenium-stealth settings
@@ -203,63 +84,60 @@ def jetstarScrape(functionality, flight_type):
 
     url = 'https://www.jetstar.com/au/en/home'
     driver.get(url)
+    start_time = time.time()  # Start time before clicking the search button
     # Perform any necessary actions to establish your session
     # Include these cookies in subsequent requests or actions
+    wait = WebDriverWait(driver, 20)
 
-    print("Sleeping for 8 seconds to let all elements load")
-    sleep(8)
-
-    combobox_panels = driver.find_elements(By.CLASS_NAME, "comboboxpanel_panel__8Zbd2")
+    combobox_panels = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "comboboxpanel_panel__8Zbd2")))
 
     # Assuming the departure combobox is the first one and destination is the second one
     departure_combobox = combobox_panels[0]
     destination_combobox = combobox_panels[1]
-    departureAirportDropdownXPath = '//*[@id="flockSearch"]/form/div[1]'
-    driver.find_element(By.XPATH, departureAirportDropdownXPath).click()
-    sleep(2)
+
+    departureAirportDropdownXPath = driver.find_element(By.CSS_SELECTOR, '[data-testid="origin"]')
+    departureAirportDropdownXPath.click()
 
     if 'departureAirport' in functionality and functionality['departureAirport'] == 'depSydney':
         sydney_departure_option = departure_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Sydney - SYD')]")
         sydney_departure_option.click()
-        sleep(2)
 
     elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depMelbourneTullamarine':
         melbourneTullamarine_departure_option = departure_combobox.find_element(By.XPATH,
                                                                                 ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
         melbourneTullamarine_departure_option.click()
-        sleep(2)
 
-    arrivalAirportDropdownXPath = '//*[@id="flockSearch"]/form/div[2]'
-    driver.find_element(By.XPATH, arrivalAirportDropdownXPath).click()
-    sleep(2)
+    arrivalAirportDropdownXPath = driver.find_element(By.CSS_SELECTOR, '[data-testid="destination"]')
+    arrivalAirportDropdownXPath.click()
 
     if 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrSydney':
         sydney_arrival_option = destination_combobox.find_element(By.XPATH,
                                                                   ".//div[contains(text(), 'Sydney - SYD')]")
         sydney_arrival_option.click()
-        sleep(2)
     elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrMelbourneTullamarine':
         melbourneTullamarine_arrival_option = destination_combobox.find_element(By.XPATH,
                                                                                 ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
         melbourneTullamarine_arrival_option.click()
-        sleep(2)
 
     # Handle one-way flight logic
     if flight_type == 'one-way':
-        wait = WebDriverWait(driver, 10)
         print("One Way")
-        date_picker_button = driver.find_element(By.XPATH, '//*[@id="flockSearch"]/form/div[3]/div/div[1]')
+        date_picker_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '.DatesSelector_searchInputWrapper__lQuuI')))
         date_picker_button.click()
+        print("CSS Selector Worked")
 
-        oneWayButtonLocator = (By.XPATH, '//*[@id="popoverContent"]/div/div/div/div[1]/div[1]/span/label[2]')
-        # Wait until the one-way button is visible and then click it
-        oneWayButton = wait.until(EC.visibility_of_element_located(oneWayButtonLocator))
-        oneWayButton.click()
+        journeyRadio = driver.find_elements(By.CSS_SELECTOR, ".radio_label__2GwuZ")
+
+        # Assuming the departure combobox is the first one and destination is the second one
+        returnRadio = journeyRadio[0]
+        oneWayRadio = journeyRadio[1]
+
+        oneWayRadio.click()
 
         # Check if 'departureDate' is in the options and not empty
         if 'departureDate' in functionality and functionality['departureDate']:
             desired_date = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
-            wait = WebDriverWait(driver, 10)
 
         datePickerOptions = driver.find_elements(By.CLASS_NAME, "daypicker__caption_label--c-UgT")
 
@@ -275,7 +153,6 @@ def jetstarScrape(functionality, flight_type):
 
         else:
             while leftMMYY != formatted_date:
-                sleep(2)
                 print("Current month is " + leftMMYY + ". Clicking next month button...")
 
                 # Click the next month button
@@ -315,19 +192,19 @@ def jetstarScrape(functionality, flight_type):
             element_id = WebElement.get_attribute('id')
             if element_id == formatted_date_id:
                 print(f"Found the matching date button: {formatted_date_id}")
-                sleep(2)
                 WebElement.click()  # Click the button if it's the right date
                 break  # Exit the loop since we've found the correct date button
             else:
                 print(f"Current element ID: {element_id} does not match {formatted_date_id}")
 
-        sleep(5)
-        submitPATH = driver.find_element(By.XPATH, '//*[@id="popoverContent"]/div/div/div/div[3]/button')
+        submitPATH = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        '.button_base__fanGW.button_variant__Ru2LZ.button_brand__LIV-9.button_size-small__B0Rtz.button_isRounded__5JCYx')))
         submitPATH.click()
-        sleep(5)
-        searchButtonPATH = driver.find_element(By.XPATH, '//*[@id="fs-search-btn"]')
+
+        searchButtonPATH = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="button-search-jcl"]')))
         searchButtonPATH.click()
-        sleep(10)
 
         # Scrape the Month Year on Jetstar and hardcode March 2024 === 2024/03 so on so forth,
         # Compare to YYYY/MM provided by user on front end
@@ -346,24 +223,89 @@ def jetstarScrape(functionality, flight_type):
     api_key = 'c4d24eaca65b2982a0710f09c28d8dbe'
 
     solver = TwoCaptcha(api_key)
-
     try:
-        result = solver.recaptcha(
-            sitekey='6Ld-zbkUAAAAAB_gkIieRFcyI4V93OJwX0GuUrlU',
-            url='https://booking.jetstar.com/au/en/booking/select-flights'
-        )
-        print('solved: ' + str(result))
-        recaptcha_text_area = driver.find_element(By.ID, 'g-recaptcha-response')
-        driver.execute_script("arguments[0].style.display = 'block';", recaptcha_text_area)
-        driver.execute_script(f"document.getElementById('g-recaptcha-response-1').value='{result['code']}';")
-        # Failed to solve CAPTCHA: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="g-recaptcha-response"]"}
+        captcha_iframe = driver.find_element(By.ID, 'sec-cpt-if')
+        driver.switch_to.frame(captcha_iframe)
+        print("Switched to iframe containing CAPTCHA")
+        checkbox = driver.find_element(By.ID, 'sec-if-cpt-container')
+        checkbox.click()
 
-    except Exception as e:
-        print('Failed to solve CAPTCHA:', e)
-        sleep(1000)
+        try:
+            result = solver.recaptcha(
+                sitekey='6Ld-zbkUAAAAAB_gkIieRFcyI4V93OJwX0GuUrlU',
+                url='https://booking.jetstar.com/au/en/booking/select-flights'
+            )
+            print('solved: ' + str(result))
+
+            # Now find and interact with the CAPTCHA response textarea
+            # Switch to the iframe that contains the CAPTCHA
+
+            # The element might be hidden, ensure that it is visible
+
+            # Submit the CAPTCHA response value into the textarea
+            recaptcha_response_textarea = driver.find_element(By.ID, 'g-recaptcha-response')
+
+            driver.execute_script("arguments[0].style.display = 'block';", recaptcha_response_textarea)
+            driver.execute_script(f"document.getElementById('g-recaptcha-response').value='{result['code']}';")
+            # Trigger any necessary events after setting the value
+            driver.execute_script("document.getElementById('g-recaptcha-response').dispatchEvent(new Event('change'));")
+
+            driver.execute_script(f"verifyAkReCaptcha('{result['code']}');")
+            print("Complete")
+
+            # Switch back to the main content
+            driver.switch_to.default_content()
+            end_time = time.time()
+            total_time = end_time - start_time
+            print(f"Total execution time: {total_time} seconds")
+            sleep(5)
+
+            # Don't forget to switch back to the default content when done
+            # Failed to solve CAPTCHA: Message: no such element: Unable to locate element: {"method":"css selector","selector":"[id="g-recaptcha-response"]"}
+
+        except Exception as e:
+            print('Failed to solve CAPTCHA:', e)
+            sleep(1000)
+
+    except Exception as t:
+        print("No Captcha Found: " + e)
+        pass
 
 
+def qantasScrape(functionality, flight_type):
+    options = Options()
+    options.add_argument("start-maximized")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
 
+    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64'
+    # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
+    # Change based on system path to chromedriver.exe
+
+    # Macbook directory
+    s = Service('/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver')
+
+    # Windows directory
+    # s = Service(pathWindows)
+
+    driver = webdriver.Chrome(service=s, options=options)
+
+    # Apply selenium-stealth settings
+    stealth(driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True,
+            )
+
+    url = 'https://www.qantas.com/au/en.html'
+    driver.get(url)
+    start_time = time.time()  # Start time before clicking the search button
+    # Perform any necessary actions to establish your session
+    # Include these cookies in subsequent requests or actions
+    wait = WebDriverWait(driver, 10)
 
 
 def clearVariables():
@@ -372,14 +314,5 @@ def clearVariables():
     lst_departure.clear()
 
 
-def perform_scrape():
-    clearVariables()  # Clear previous data
-    scraperLogic()  # Perform scraping
-    check_prices_and_notify(lst_prices)
-    # Format your results here
-    results = list(zip(lst_prices, lst_airline, lst_departure))
-    return results
-
-
 if __name__ == "__main__":
-    perform_scrape()
+    print("Hello World")
