@@ -52,7 +52,7 @@ def jetstarScrape(functionality, flight_type):
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
-    options.add_argument("--headless")  # Runs Chrome in headless mode.
+    # options.add_argument("--headless")  # Runs Chrome in headless mode.
 
     # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver'
     # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
@@ -311,12 +311,13 @@ def qantasScrape(functionality, flight_type):
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-gn7407-LargeButton')))
     menuOpen.click()
 
-    originAirportPath = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-shnplr-runway-dialog-button__value--large-LargeButton')))
-    originAirportPath.click()
+
 
     if 'departureAirport' in functionality and 'arrivalAirport' in functionality:
         # Define a mapping from the form value to the airport code
+        originAirportPath = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-shnplr-runway-dialog-button__value--large-LargeButton')))
+        originAirportPath.click()
 
         dep_value = functionality['departureAirport']
         origin_airport_code = airport_code_mapping.get(dep_value, 'Unknown')  # Get the airport code, or 'Unknown' if not found
@@ -325,9 +326,16 @@ def qantasScrape(functionality, flight_type):
         text_area.clear()  # It's a good practice to clear the field first, in case there is any pre-filled data
         text_area.send_keys(origin_airport_code)
 
-        departureAirportPath = WebDriverWait(driver, 10).until(
+        # Clas: css-p8i965
+        originAirportCode = driver.find_element(By.CSS_SELECTOR, '.css-p8i965')
+        originAirportCodeText = originAirportCode.text
+        if originAirportCodeText == origin_airport_code:
+            print("Test")
+
+
+        arrivalAirportPath = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, 'css-kx5i2d-runway-popup-field__placeholder-LargeButton')))
-        departureAirportPath.click()
+        arrivalAirportPath.click()
 
         arr_value = functionality['arrivalAirport']
         departure_airport_code = airport_code_mapping.get(arr_value, 'Unknown')  # Get the airport code, or 'Unknown' if not found
@@ -335,6 +343,8 @@ def qantasScrape(functionality, flight_type):
         text_area = driver.find_element(By.CSS_SELECTOR, ".css-1mu1mk2")  # Replace "textAreaId" with the actual ID or locator
         text_area.clear()  # It's a good practice to clear the field first, in case there is any pre-filled data
         text_area.send_keys(departure_airport_code)
+
+
 
 
 
