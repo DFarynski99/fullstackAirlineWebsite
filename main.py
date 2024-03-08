@@ -13,6 +13,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium_stealth import stealth
 from twocaptcha.solver import TwoCaptcha
 import time
+from selenium.common.exceptions import StaleElementReferenceException
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -304,6 +305,8 @@ def qantasScrape(functionality, flight_type):
     airport_code_mapping = {
         'depSydney': 'SYD',
         'depMelbourneTullamarine': 'MEL',
+        'arrSydney': 'SYD',
+        'arrMelbourneTullamarine': 'MEL'
         # Add more mappings as needed
     }
 
@@ -311,7 +314,20 @@ def qantasScrape(functionality, flight_type):
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-gn7407-LargeButton')))
     menuOpen.click()
 
+    if flight_type == 'one-way':
+        # css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css
+        onewayDropdown = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.CLASS_NAME, 'css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
+        onewayDropdown.click()
+        sleep(3)
 
+        one_way_element = driver.find_element(By.CSS_SELECTOR, ".css-sgdso3-runway-dropdown__menu-item")
+        driver.execute_script("arguments[0].click();", one_way_element)
+
+
+    else:
+        pass
 
     if 'departureAirport' in functionality and 'arrivalAirport' in functionality:
         # Define a mapping from the form value to the airport code
@@ -320,33 +336,122 @@ def qantasScrape(functionality, flight_type):
         originAirportPath.click()
 
         dep_value = functionality['departureAirport']
-        origin_airport_code = airport_code_mapping.get(dep_value, 'Unknown')  # Get the airport code, or 'Unknown' if not found
+        origin_airport_code = airport_code_mapping.get(dep_value,
+                                                       'Unknown')  # Get the airport code, or 'Unknown' if not found
 
-        text_area = driver.find_element(By.CSS_SELECTOR, ".css-1mu1mk2")  # Replace "textAreaId" with the actual ID or locator
+        text_area = driver.find_element(By.CSS_SELECTOR,
+                                        ".css-1mu1mk2")  # Replace "textAreaId" with the actual ID or locator
         text_area.clear()  # It's a good practice to clear the field first, in case there is any pre-filled data
         text_area.send_keys(origin_airport_code)
 
-        # Clas: css-p8i965
-        originAirportCode = driver.find_element(By.CSS_SELECTOR, '.css-p8i965')
-        originAirportCodeText = originAirportCode.text
-        if originAirportCodeText == origin_airport_code:
-            print("Test")
+        print("Before origin_airport_codes")
+        sleep(4)
+        origin_airport_codes = driver.find_elements(By.CLASS_NAME, 'css-p8i965')
+        print(origin_airport_codes)
 
+        # Iterate through all fetched elements
+        for airport_code_element in origin_airport_codes:
+            # Get the text of the current element
+            airport_code_text = airport_code_element.text
 
-        arrivalAirportPath = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, 'css-kx5i2d-runway-popup-field__placeholder-LargeButton')))
-        arrivalAirportPath.click()
+            # Check if the text matches the origin_airport_code
+            if airport_code_text == origin_airport_code:
+                print("Match found: " + airport_code_text + " = " + origin_airport_code)
+                # If a match is found, you might want to break out of the loop or perform some action
+                airport_code_element.click()
+                break
+            else:
+                print("Did not work: " + airport_code_text + " : " + origin_airport_code)
+
+        sleep(1)
+
+        arrivalAirportPathArray = wait.until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".css-1oltvto-runway-popup-field__button")))
+
+        # Assuming the departure combobox is the first one and destination is the second one
+        origin_box = arrivalAirportPathArray[0]
+        arrival_box = arrivalAirportPathArray[1]
+
+        arrival_box.click()
 
         arr_value = functionality['arrivalAirport']
-        departure_airport_code = airport_code_mapping.get(arr_value, 'Unknown')  # Get the airport code, or 'Unknown' if not found
+        arrival_airport_code = airport_code_mapping.get(arr_value,
+                                                        'Unknown')  # Get the airport code, or 'Unknown' if not found
 
-        text_area = driver.find_element(By.CSS_SELECTOR, ".css-1mu1mk2")  # Replace "textAreaId" with the actual ID or locator
+        text_area = driver.find_element(By.CSS_SELECTOR,
+                                        ".css-1mu1mk2")  # Replace "textAreaId" with the actual ID or locator
         text_area.clear()  # It's a good practice to clear the field first, in case there is any pre-filled data
-        text_area.send_keys(departure_airport_code)
+        text_area.send_keys(arrival_airport_code)
 
+        print("Before arrival_airport_codes")
+        sleep(2)
+        arrival_airport_codes = driver.find_elements(By.CLASS_NAME, 'css-p8i965')
 
+        # Iterate through all fetched elements
+        for airport_code_element_arr in arrival_airport_codes:
+            # Get the text of the current element
+            airport_code_text_arr = airport_code_element_arr.text
 
+            # Check if the text matches the origin_airport_code
+            if airport_code_text_arr == arrival_airport_code:
+                print("Match found: " + airport_code_text_arr + " = " + arrival_airport_code)
+                # If a match is found, you might want to break out of the loop or perform some action
+                airport_code_element_arr.click()
+                break
+            else:
+                print("Did not work: " + airport_code_text_arr + " : " + arrival_airport_code)
 
+    # While loop, while user input Month Year is not found, keep iterating and generating new elements
+
+    dateSelectorButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-5xbxpx-runway-popup-field__button')))
+    dateSelectorButton.click()
+
+    scrollable_calendar = driver.find_element(By.XPATH, '/html/body/div[15]/div[2]/div/div[3]/div')
+    # Now, execute a script to scroll to the bottom of this div
+    driver.execute_script('arguments[0].scrollTo(0, arguments[0].scrollHeight)', scrollable_calendar)
+
+    departure_date_obj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
+    formatted_date = departure_date_obj.strftime('%B %Y')  # Updated to include year in the format
+
+    month_year_found = False
+
+    while not month_year_found:
+        try:
+            calendarMain = driver.find_elements(By.CLASS_NAME, 'css-fls1na-Month')
+            for month_element in calendarMain:
+                # Attempt to get the parent element
+                parent_element = month_element.find_element(By.XPATH, "..")
+                element_text = ' '.join(parent_element.text.split())
+
+                if formatted_date == element_text:
+                    print("Match has been found: " + formatted_date + " : " + element_text)
+                    month_year_found = True
+                    break
+        except StaleElementReferenceException:
+            # If caught, this will go back to the start of the while loop and try to find the elements again
+            # The search only goes till February 2025, if user input is past this, then this will be triggered
+            # Need better handling of this, such as blocking the option to choose date past February 2025
+            continue
+
+        if not month_year_found:
+            driver.execute_script('arguments[0].scrollTo(0, arguments[0].scrollHeight)', scrollable_calendar)
+
+    # 2024-03-24
+
+    # Find and then click the date element
+    dateFollowingButtonFormat = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
+    formatted_date = dateFollowingButtonFormat.strftime('%Y-%m-%d')
+    print(formatted_date)
+    dateSelectorButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, f'[data-testid="{formatted_date}"]')))
+    dateSelectorButton.click()
+
+    print("Passed!")
+    sleep(10)
+
+    # Get the date convert to Month Year format like in Jetstar and compare to current Month Year on Qantas
+    # If it's not a match then go next month
 
     sleep(10)
 
