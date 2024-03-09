@@ -446,15 +446,13 @@ def qantasScrape(functionality, flight_type):
     dateSelectorButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, f'[data-testid="{formatted_date}"]')))
     dateSelectorButton.click()
-
     print("Passed!")
     sleep(10)
 
     # Get the date convert to Month Year format like in Jetstar and compare to current Month Year on Qantas
     # If it's not a match then go next month
 
-    sleep(10)
-
+    sleep(8)
 
 def clearVariables():
     lst_prices.clear()
