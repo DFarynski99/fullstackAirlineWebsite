@@ -431,7 +431,7 @@ def qantasScrape(functionality, flight_type):
         except StaleElementReferenceException:
             # If caught, this will go back to the start of the while loop and try to find the elements again
             # The search only goes till February 2025, if user input is past this, then this will be triggered
-            # Need better handling of this, such as blocking the option to choose date past February 2025
+            #  Need better handling of this, such as blocking the option to choose date past February 2025
             continue
 
         if not month_year_found:
