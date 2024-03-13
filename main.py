@@ -268,6 +268,7 @@ def jetstarScrape(functionality, flight_type):
 
 
 def qantasScrape(functionality, flight_type):
+    # Find solution for search, Selenium detected and did not load
     options = Options()
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
