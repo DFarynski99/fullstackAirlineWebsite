@@ -1,5 +1,5 @@
 from time import sleep
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
 import requests  # Add this line to import the requests module
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -14,6 +14,8 @@ from selenium_stealth import stealth
 from twocaptcha.solver import TwoCaptcha
 import time
 from selenium.common.exceptions import StaleElementReferenceException
+import undetected_chromedriver as uc
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -60,7 +62,7 @@ def jetstarScrape(functionality, flight_type):
     # Change based on system path to chromedriver.exe
 
     # Macbook directory
-    s = Service('/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver')
+    s = Service('C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe')
 
     # Windows directory
     # s = Service(pathWindows)
@@ -268,36 +270,14 @@ def jetstarScrape(functionality, flight_type):
 
 
 def qantasScrape(functionality, flight_type):
-    # Find solution for search, Selenium detected and did not load
-    options = Options()
-    options.add_argument("start-maximized")
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('useAutomationExtension', False)
+    options = uc.ChromeOptions()
+    options.add_argument("--start-maximized")  # Open the browser in maximized mode
 
-    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver'
-    # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
-    # Change based on system path to chromedriver.exe
-
-    # Macbook directory
-    s = Service('/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver')
-
-    # Windows directory
-    # s = Service(pathWindows)
-
-    driver = webdriver.Chrome(service=s, options=options)
-
-    # Apply selenium-stealth settings
-    stealth(driver,
-            languages=["en-US", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True,
-            )
+    driver = uc.Chrome(options=options)
 
     url = 'https://www.qantas.com/au/en.html'
     driver.get(url)
+    driver.maximize_window()
     start_time = time.time()  # Start time before clicking the search button
     # Perform any necessary actions to establish your session
     # Include these cookies in subsequent requests or actions
@@ -315,18 +295,43 @@ def qantasScrape(functionality, flight_type):
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-gn7407-LargeButton')))
     menuOpen.click()
 
+    def click_with_retry(driver, selector, retries=5, delay=5, scroll_by=75):
+        """Attempts to click an element, with retries and a delay between attempts."""
+        for attempt in range(retries):
+            try:
+                # Wait for the element to be clickable
+                element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, selector)))
+                # Try clicking the element
+                element.click()
+                print("Click successful")
+                return
+            except ElementClickInterceptedException:
+                print(f"Click intercepted, attempt {attempt + 1} of {retries}")
+                if attempt > 0:
+                    scroll_element_into_view(driver, element, scroll_by)
+                # Wait for a bit before trying again
+                time.sleep(delay)
+        raise Exception("Failed to click the element after several retries")
+
+    # If only a flight 'there' date was chosen, a return flight date was not selected
     if flight_type == 'one-way':
         # css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css
         onewayDropdown = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(
                 (By.CLASS_NAME, 'css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
         onewayDropdown.click()
-        sleep(3)
-
-        one_way_element = driver.find_element(By.CSS_SELECTOR, ".css-sgdso3-runway-dropdown__menu-item")
-        driver.execute_script("arguments[0].click();", one_way_element)
 
 
+        one_way_selector = '.css-sgdso3-runway-dropdown__menu-item'
+        try:
+            click_with_retry(driver, one_way_selector)
+        except Exception as e:
+            print(e)
+            dateSelectFail = True
+            print("dateSelectFail is flagged as True")
+
+
+    # Else means if the flight is a return flight
     else:
         pass
 
@@ -404,9 +409,14 @@ def qantasScrape(functionality, flight_type):
 
     # While loop, while user input Month Year is not found, keep iterating and generating new elements
 
-    dateSelectorButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-5xbxpx-runway-popup-field__button')))
-    dateSelectorButton.click()
+    dateSelectorButton = '.css-5xbxpx-runway-popup-field__button'
+    try:
+        click_with_retry(driver, dateSelectorButton)
+    except Exception as e:
+        print(e)
+        dateSelectFail = True
+        print("dateSelectFail is flagged as True")
+
 
     scrollable_calendar = driver.find_element(By.XPATH, '/html/body/div[15]/div[2]/div/div[3]/div')
     # Now, execute a script to scroll to the bottom of this div
@@ -444,16 +454,45 @@ def qantasScrape(functionality, flight_type):
     dateFollowingButtonFormat = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
     formatted_date = dateFollowingButtonFormat.strftime('%Y-%m-%d')
     print(formatted_date)
-    dateSelectorButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, f'[data-testid="{formatted_date}"]')))
-    dateSelectorButton.click()
+
+    def scroll_element_into_view(driver, element, scroll_by):
+        """Scrolls the page a bit to bring the element into a better view."""
+        # You can adjust this as necessary. For example, to scroll down:
+        driver.execute_script(f"window.scrollBy(0, {scroll_by});")
+        # Alternatively, to scroll the element into the center of the view:
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+        print(f"Scrolled the page by {scroll_by} pixels")
+
+    dateSelectFail = False
+
+
+    # Usage
+    formatted_date_selector = f'[data-testid="{formatted_date}"]'
+    try:
+        click_with_retry(driver, formatted_date_selector)
+    except Exception as e:
+        print(e)
+        dateSelectFail = True
+        print("dateSelectFail is flagged as True")
+
+    if dateSelectFail:
+        print("dateSelectFail == True block is triggered")
+
     print("Passed!")
-    sleep(10)
 
-    # Get the date convert to Month Year format like in Jetstar and compare to current Month Year on Qantas
-    # If it's not a match then go next month
+    # Button to confirm date selection once dates have been selected
+    dateConfirmButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="dialogConfirmation"]')))
+    dateConfirmButton.click()
+    sleep(2)
+    # Search flights button after all selections are made
+    searchFlightsButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-hbhwmh-baseStyles-baseStyles-baseStyles-solidStyles-solidStyles-solidStyles-Button')))
+    searchFlightsButton.click()
+    print("Search Flights Button (CSS) Clicked")
 
-    sleep(8)
+    sleep(1000)
+
 
 def clearVariables():
     lst_prices.clear()
