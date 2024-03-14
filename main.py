@@ -463,28 +463,38 @@ def qantasScrape(functionality, flight_type):
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
         print(f"Scrolled the page by {scroll_by} pixels")
 
-    dateSelectFail = False
 
-
-    # Usage
     formatted_date_selector = f'[data-testid="{formatted_date}"]'
-    try:
-        click_with_retry(driver, formatted_date_selector)
-    except Exception as e:
-        print(e)
-        dateSelectFail = True
-        print("dateSelectFail is flagged as True")
 
-    if dateSelectFail:
-        print("dateSelectFail == True block is triggered")
+    def try_click_date_and_confirm(driver, formatted_date_selector, max_attempts=3):
+        attempts = 0
+        while attempts < max_attempts:
+            try:
+                # Attempt to click the date
+                click_with_retry(driver, formatted_date_selector)
 
-    print("Passed!")
+                # Check if the confirm button is present and clickable
+                dateConfirmButton = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="dialogConfirmation"]')))
+                dateConfirmButton.click()
 
-    # Button to confirm date selection once dates have been selected
-    dateConfirmButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="dialogConfirmation"]')))
-    dateConfirmButton.click()
-    sleep(2)
+                print("Date selected and confirmed successfully.")
+                return  # Exit the function as we've succeeded
+            except TimeoutException:
+                # If the confirm button wasn't found or wasn't clickable, increment the attempt counter
+                print(f"Attempt {attempts + 1} failed; confirm button not found or not clickable.")
+                attempts += 1
+            except Exception as e:
+                print(e)
+                print("Unexpected error, aborting.")
+                break  # Exit the loop on unexpected errors
+
+        print("Failed to select and confirm date after several attempts.")
+
+    # Usage example
+    try_click_date_and_confirm(driver, formatted_date_selector)
+
+
     # Search flights button after all selections are made
     searchFlightsButton = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-hbhwmh-baseStyles-baseStyles-baseStyles-solidStyles-solidStyles-solidStyles-Button')))
