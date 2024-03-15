@@ -1,53 +1,22 @@
-from time import sleep
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, ElementClickInterceptedException
-import requests  # Add this line to import the requests module
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from datetime import datetime
-import sys
 import os
+import sys
+import time
+from datetime import datetime
+from time import sleep
+
+import undetected_chromedriver as uc
 from selenium import webdriver
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium_stealth import stealth
 from twocaptcha.solver import TwoCaptcha
-import time
-from selenium.common.exceptions import StaleElementReferenceException
-import undetected_chromedriver as uc
-
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
-lst_prices = []
-lst_airline = []
-lst_departure = []
-
-
-def notify_ifttt(price):
-    event_name = 'price_drop'
-    key = 'o68zKbvAHahsn_vcuM8O_PHpKoBIN_aCzS0e22_wHBd'  # Replace with your IFTTT Webhooks key
-    url = f'https://maker.ifttt.com/trigger/price-drop/with/key/{key}'
-
-    # Data to pass to the email body, you can add more with Value2, Value3 etc.
-    data = {'value1': lst_prices, 'value2': lst_airline, 'value3': lst_departure}
-    response = requests.post(url, json=data)
-    print(f'Notification sent for price drop: {lst_prices}')
-
-
-def check_prices_and_notify(lst_prices):
-    for price_str in lst_prices:
-        # Clean the price string and convert it to a float
-        price_value = float(price_str.replace('$', ''))
-
-        # Check if the price is below $200
-        if price_value < 200:
-            print(f"Price dropped to ${price_value}, sending notification...")
-            notify_ifttt(f'$ {price_value}')
-            print("")
-        else:
-            print(f"Price is ${price_value}, no notification sent.")
-            print("")
 
 
 def jetstarScrape(functionality, flight_type):
@@ -127,20 +96,14 @@ def jetstarScrape(functionality, flight_type):
         journeyRadio = driver.find_elements(By.CSS_SELECTOR, ".radio_label__2GwuZ")
 
         # Assuming the departure combobox is the first one and destination is the second one
-        returnRadio = journeyRadio[0]
         oneWayRadio = journeyRadio[1]
 
         oneWayRadio.click()
-
-        # Check if 'departureDate' is in the options and not empty
-        if 'departureDate' in functionality and functionality['departureDate']:
-            desired_date = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
 
         datePickerOptions = driver.find_elements(By.CLASS_NAME, "daypicker__caption_label--c-UgT")
 
         # Assuming the departure combobox is the first one and destination is the second one
         leftMMYY = datePickerOptions[0].text
-        rightMMYY = datePickerOptions[1].text
 
         departure_date_obj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
         formatted_date = departure_date_obj.strftime('%B %Y')
@@ -173,10 +136,6 @@ def jetstarScrape(functionality, flight_type):
         # Add date selection logic
         dayPickerOptions = driver.find_elements(By.CLASS_NAME, "daypicker__tbody--UL-3t")
         leftDaySelectBlock = dayPickerOptions[0]
-        rightDaySelectBlock = dayPickerOptions[1]
-
-        fullDepartureObj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
-        formatted_date_id = fullDepartureObj.strftime('%d-%m-%Y')  # Format date to match ID format
 
         buttonsInLeftBlock = leftDaySelectBlock.find_elements(By.CSS_SELECTOR,
                                                               '.daypicker__button_reset--inqB7.daypicker__button--ayiU1.daypicker__day--FYuDG')
@@ -321,7 +280,6 @@ def qantasScrape(functionality, flight_type):
                 (By.CLASS_NAME, 'css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
         onewayDropdown.click()
 
-
         one_way_selector = '.css-sgdso3-runway-dropdown__menu-item'
         try:
             click_with_retry(driver, one_way_selector)
@@ -329,6 +287,7 @@ def qantasScrape(functionality, flight_type):
             print(e)
             dateSelectFail = True
             print("dateSelectFail is flagged as True")
+        sleep(2)
 
 
     # Else means if the flight is a return flight
@@ -417,7 +376,6 @@ def qantasScrape(functionality, flight_type):
         dateSelectFail = True
         print("dateSelectFail is flagged as True")
 
-
     scrollable_calendar = driver.find_element(By.XPATH, '/html/body/div[15]/div[2]/div/div[3]/div')
     # Now, execute a script to scroll to the bottom of this div
     driver.execute_script('arguments[0].scrollTo(0, arguments[0].scrollHeight)', scrollable_calendar)
@@ -463,7 +421,6 @@ def qantasScrape(functionality, flight_type):
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
         print(f"Scrolled the page by {scroll_by} pixels")
 
-
     formatted_date_selector = f'[data-testid="{formatted_date}"]'
 
     def try_click_date_and_confirm(driver, formatted_date_selector, max_attempts=3):
@@ -494,20 +451,199 @@ def qantasScrape(functionality, flight_type):
     # Usage example
     try_click_date_and_confirm(driver, formatted_date_selector)
 
-
     # Search flights button after all selections are made
     searchFlightsButton = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-hbhwmh-baseStyles-baseStyles-baseStyles-solidStyles-solidStyles-solidStyles-Button')))
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    '.css-hbhwmh-baseStyles-baseStyles-baseStyles-solidStyles-solidStyles-solidStyles-Button')))
     searchFlightsButton.click()
     print("Search Flights Button (CSS) Clicked")
 
     sleep(1000)
 
 
-def clearVariables():
-    lst_prices.clear()
-    lst_airline.clear()
-    lst_departure.clear()
+def rexScrape(functionality, flight_type):
+    options = Options()
+    options.add_argument("start-maximized")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
+    # options.add_argument("--headless")  # Runs Chrome in headless mode.
+
+    # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver'
+    # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
+    # Change based on system path to chromedriver.exe
+
+    # Macbook directory
+    s = Service('C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe')
+
+    # Windows directory
+    # s = Service(pathWindows)
+
+    driver = webdriver.Chrome(service=s, options=options)
+
+    # Apply selenium-stealth settings
+    stealth(driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True,
+            )
+
+    url = 'https://www.rex.com.au/'
+    driver.get(url)
+
+    originAirportDropdown = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, 'ContentPlaceHolder1_BookingHomepage1_OriginAirport')))
+    originAirportDropdown.click()
+
+    airport_code_mapping = {
+        'depSydney': 'SYD',
+        'depMelbourneTullamarine': 'MEL',
+        'arrSydney': 'SYD',
+        'arrMelbourneTullamarine': 'MEL'
+        # Add more mappings as needed
+    }
+
+    if 'departureAirport' in functionality:
+        departureAirportKey = functionality['departureAirport']
+        departureAirportValue = airport_code_mapping[departureAirportKey]
+        print(f'Departure Airport: {departureAirportKey} and Arrival Mapping: {departureAirportValue}')
+        # Departure Airport: depSydney and Mapping: SYD
+        sleep(2)
+        departureAirportSelection = driver.find_element(By.CSS_SELECTOR, f'option[value="{departureAirportValue}"]')
+        departureAirportSelection.click()
+        print(f"Clicked {departureAirportValue}")
+
+    destinationAirportDropdown = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, 'ContentPlaceHolder1_BookingHomepage1_DestinationAirport')))
+    destinationAirportDropdown.click()
+
+    if 'arrivalAirport' in functionality:
+        arrivalAirportKey = functionality['arrivalAirport']
+        arrivalAirportValue = airport_code_mapping[arrivalAirportKey]
+        print(f'Arrival Airport: {arrivalAirportKey} and Arrival Mapping: {arrivalAirportValue}')
+        sleep(2)
+
+        print(f'Clicked {arrivalAirportValue}')
+        selectElement = driver.find_element(By.ID, 'ContentPlaceHolder1_BookingHomepage1_DestinationAirport')
+        for option in selectElement.find_elements(By.TAG_NAME, 'option'):
+            if option.get_attribute('value') == "SYD":
+                print("Found Sydney: ", option.text)
+                driver.execute_script("arguments[0].scrollIntoView(true);", option)
+                option.click()
+                driver.execute_script("arguments[0].click();", option)
+                break
+
+            elif option.get_attribute('value') == 'MEL':
+                print("Found Melbourne: ", option.text)
+                driver.execute_script("arguments[0].scrollIntoView(true);", option)
+                option.click()
+                driver.execute_script("arguments[0].click();", option)
+                break
+
+    if flight_type == 'one-way':
+        oneWayRadio = driver.find_element(By.CSS_SELECTOR, '.homebookingform-font-size')
+        oneWayRadio.click()
+
+        DateCalendar1 = driver.find_element(By.CSS_SELECTOR, '.datepick-input')
+        DateCalendar1.click()
+
+    departure_date_obj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
+    formatted_date = departure_date_obj.strftime('%b %Y')  # '%b' for abbreviated month name, '%Y' for full year
+
+    print(formatted_date)
+
+    monthFound = False
+
+    while monthFound == False:
+        findRexMonthYear = driver.find_elements(By.CSS_SELECTOR, '.month.drp-calendar-header')
+        leftMMYY = findRexMonthYear[0]
+        nextMonthSelector = driver.find_element(By.CSS_SELECTOR, '.next.available')
+        try:
+            if formatted_date == leftMMYY.text:
+                monthFound = True
+                print("Correct Month Found")
+
+            else:
+                nextMonthSelector.click()
+                print(f'User input date: {formatted_date}, Left MMYY: {leftMMYY.text}')
+
+        except StaleElementReferenceException:
+            # If caught, this will go back to the start of the while loop and try to find the elements again
+            # Search only goes till February 2025, if user input is past this, then this will be triggered
+            #  Need better handling of this, such as blocking the option to choose date past February 2025
+            continue
+
+    # Your previous setup code, ensure the driver is initialized and pointed to the correct page
+
+    formatted_numerical_date = departure_date_obj.strftime('%d').lstrip('0')  # Removes leading zero if present
+    print(formatted_numerical_date)
+    # First, locate the specific tbody by its XPath
+    tbody = driver.find_element(By.XPATH, '//*[@id="RexHomeMaster"]/div[3]/div[2]/div[1]/table/tbody')
+
+    # Then, find all the tr elements within that tbody
+    table_data = driver.find_elements(By.TAG_NAME, 'td')
+    dateFound = False
+
+    while not dateFound:
+        for td in table_data:
+            # Check if the td text matches the date and does not have 'off ends' in the class attribute
+            if td.text.strip() == formatted_numerical_date and 'off ends' not in td.get_attribute('class'):
+                print(f'Date found: {td.text}')
+                td.click()
+                dateFound = True
+                break
+            else:
+                print(f'Incorrect date, going next. ({td.text})')
+
+    bookNowButton = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '.BookNowbtn')))
+    bookNowButton.click()
+
+    # sitekey = '6LfNWukUAAAAAAGvs5JOmzYUR-xSDIJH_Vi7z35I',
+    # url = 'https://ibe2.rex.com.au/AvailFlight'
+    api_key = 'c4d24eaca65b2982a0710f09c28d8dbe'
+
+    solver = TwoCaptcha(api_key)
+
+    try:
+        result = solver.recaptcha(
+            sitekey='6LfNWukUAAAAAAGvs5JOmzYUR-xSDIJH_Vi7z35I',
+            url='https://ibe2.rex.com.au/AvailFlight'
+        )
+        print('solved: ' + str(result))
+
+        # Now find and interact with the CAPTCHA response textarea
+        # Switch to the iframe that contains the CAPTCHA
+        # The element might be hidden, ensure that it is visible
+        # Submit the CAPTCHA response value into the textarea
+        recaptcha_response_textarea = driver.find_element(By.ID, 'g-recaptcha-response')
+
+        driver.execute_script("arguments[0].style.display = 'block';", recaptcha_response_textarea)
+        driver.execute_script(f"document.getElementById('g-recaptcha-response').value='{result['code']}';")
+        # Trigger any necessary events after setting the value
+        driver.execute_script("document.getElementById('g-recaptcha-response').dispatchEvent(new Event('change'));")
+
+        driver.execute_script(f"""
+        $('#txtcaptcha').val("{result['code']}");
+        $('.availCont').removeAttr('disabled');
+        """)
+        print("Complete")
+
+        recaptchaSubmitButton = driver.find_element(By.CSS_SELECTOR, '.btn.btn-primary.d-block.btn-wait.availCont')
+        recaptchaSubmitButton.click()
+
+        # Switch back to the main content
+        driver.switch_to.default_content()
+        print("Back to default frame complete")
+
+        sleep(5)
+
+    except Exception as e:
+        print('Failed to solve CAPTCHA:', e)
+
+    sleep(1000)
 
 
 if __name__ == "__main__":
