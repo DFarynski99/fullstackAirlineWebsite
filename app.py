@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 from main import jetstarScrape  # Import your scraping functions
 from main import qantasScrape  # Import your scraping functions
 from main import rexScrape
+from main import virginScrape
 
 app = Flask(__name__)
 
@@ -35,6 +36,11 @@ def home():
             elif functionality['airline'] == 'regionalExpress':
                 message = rexScrape(functionality, flight_type)
 
+            elif functionality['airline'] == 'virgin':
+                message = virginScrape(functionality, flight_type)
+
+
+
             elif action == 'scrapeFlights':
                 message = "Scrape Flights button pressed"
 
@@ -42,5 +48,5 @@ def home():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 1122))
+    port = int(os.environ.get('PORT', 1125))
     app.run(host='0.0.0.0', port=port, debug=True)

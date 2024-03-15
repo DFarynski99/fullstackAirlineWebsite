@@ -646,5 +646,67 @@ def rexScrape(functionality, flight_type):
     sleep(1000)
 
 
+def virginScrape(functionality, flight_type):
+    options = uc.ChromeOptions()
+    options.add_argument("--start-maximized")  # Open the browser in maximized mode
+
+    driver = uc.Chrome(options=options)
+
+    url = 'https://www.virginaustralia.com/au/en//'
+    driver.get(url)
+    driver.maximize_window()
+
+
+    origin_airport_dropdown = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '.fsTextInput.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInput--hr6I2')))
+    origin_airport_dropdown.click()
+    print("Print test 1")
+
+    airport_code_mapping = {
+        'depSydney': 'SYD',
+        'depMelbourneTullamarine': 'MEL',
+        'arrSydney': 'SYD',
+        'arrMelbourneTullamarine': 'MEL'
+        # Add more mappings as needed
+    }
+
+    if functionality['departureAirport']:
+        origin_departure_key = (functionality['departureAirport'])
+        origin_departure_value = airport_code_mapping[origin_departure_key]
+        print(origin_departure_key, origin_departure_value)
+
+        origin_airport_clicked_textarea = driver.find_element(By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
+        origin_airport_clicked_textarea.send_keys(origin_departure_value)
+
+        origin_airport_dropdown_option = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+        origin_airport_dropdown_option.click()
+
+
+    if functionality['arrivalAirport']:
+        arrival_airport_key = (functionality['arrivalAirport'])
+        arrival_airport_value = airport_code_mapping[arrival_airport_key]
+        print(arrival_airport_key, arrival_airport_value)
+        airport_dropdown_finder = driver.find_elements(By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
+        arrival_airport_dropdown = airport_dropdown_finder[1]
+        # CSS is the same for origin and departure airport, so we need to find both elements as associate the index[1]
+        # to be for arrival, therefore [0] would be origin
+        arrival_airport_dropdown.send_keys(arrival_airport_value)
+        arrival_airport_dropdown_option = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+        arrival_airport_dropdown_option.click()
+
+
+
+
+
+
+
+
+
+    sleep(1000)
+
+
+
 if __name__ == "__main__":
     print("Hello World")
