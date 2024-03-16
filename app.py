@@ -43,9 +43,6 @@ def home():
 
 
 
-            elif action == 'scrapeFlights':
-                message = "Scrape Flights button pressed"
-
     return render_template('index.html', results=results)
 
 

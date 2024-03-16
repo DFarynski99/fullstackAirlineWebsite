@@ -1,11 +1,11 @@
 
 
-#htmlBorder{
+#flightDisplayContainer{
     left: 50%;
     transform: translateX(-50%);
     position: relative;
     width: 80%;
-    height: 100vh;
+    height: 80vh;
     outline: darkblue 2px dotted;
 }
 
@@ -20,7 +20,106 @@ label {
   margin-top: 20px;
 }
 
+#heroshotHeading{
+    font-family: serif;
+    color: white;
+
+}
+#websiteContainer{
+    outline: hotpink 6px dotted;
+
+}
+#searchButton{
+    position: absolute;
+    right: 0; /* This aligns the button to the far right */
+    top: 50%; /* Example to vertically center it */
+    transform: translateY(-50%); /* Adjust the vertical alignment */
+    background-color: transparent;
+    border: 1px solid black; /* Specify the border width and style */
+    /* Other styles for the button */
+
+}
+
 #flightDetails{
     outline: red 2px dotted;
     text-align: center;
 }
+
+#searchFunctionContainer{
+    outline: greenyellow 5px dotted;
+    margin-top: 15vh;
+    display: flex;         /* Use flexbox to layout children horizontally */
+    flex-wrap: wrap;       /* Allows items to wrap onto the next line if needed */
+    align-items: center;   /* Align items vertically in the center */
+    justify-content: center; /* Horizontally center the items in the container */
+    position: relative;
+}
+
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.inner {
+  box-sizing: border-box;
+  height: 50px;
+  padding: 0; /* Adjust as needed */
+  line-height: 50px; /* Match height for vertically centering text */
+  /* Other styles (borders, font size, etc.) */
+}
+.outerLeft{
+  box-sizing: border-box;
+  height: 50px;
+  padding: 0; /* Adjust as needed */
+  line-height: 50px; /* Match height for vertically centering text */
+  /* Other styles (borders, font size, etc.) */
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+.outerRight{
+  box-sizing: border-box;
+  height: 50px;
+  padding: 0; /* Adjust as needed */
+  line-height: 50px; /* Match height for vertically centering text */
+  border-top-right-radius: 15px !important;
+  border-bottom-right-radius: 15px !important;
+}
+.outerLeft, .inner, .outerRight{
+    margin: 2px;
+    outline: none;
+    border: none;
+}
+input[type='date'] {
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 2px;
+  padding: 4px; /* Example */
+}
+
+#imageHolder {
+
+    outline: purple 5px dotted;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+        height: auto; /* Maintain the aspect ratio of the image */
+    display: block; /* To enable margin auto to work */
+
+}
+
+#imageOne {
+    max-width: 80%; /* Make sure the image can scale down */
+    display: block; /* To enable margin auto to work */
+    margin-left: auto; /* Center the image horizontally */
+    margin-right: auto; /* Center the image horizontally */
+}
+

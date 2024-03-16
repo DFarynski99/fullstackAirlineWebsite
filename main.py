@@ -653,10 +653,12 @@ def virginScrape(functionality, flight_type):
     # Set the user agent
 
     driver = uc.Chrome(options=options)
-
+    driver.delete_all_cookies()
+    # driver.delete_all_cookies() - Use if accidentally started in --headless mode and Virgin detected
     url = 'https://www.virginaustralia.com/au/en//'
     driver.get(url)
 
+    driver.delete_all_cookies()
 
     origin_airport_dropdown = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.fsTextInput.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInput--hr6I2')))
@@ -813,10 +815,9 @@ def virginScrape(functionality, flight_type):
             results.append(flight_details)
 
     print(results)
+    driver.quit()
     return results
 
-
-    sleep(1000)
 
 
 
