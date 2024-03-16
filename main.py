@@ -805,7 +805,7 @@ def virginScrape(functionality, flight_type):
     )
     final_lets_fly_button.click()
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 30).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.mini-flight-summary'))
     )
     flight_cards_mini_summary = driver.find_elements(By.CSS_SELECTOR, '.mini-flight-summary')
