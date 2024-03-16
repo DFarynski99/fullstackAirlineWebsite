@@ -643,7 +643,22 @@ def rexScrape(functionality, flight_type):
     except Exception as e:
         print('Failed to solve CAPTCHA:', e)
 
-    sleep(1000)
+
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.f-strip'))
+    )
+    flightCards = driver.find_elements(By.CSS_SELECTOR, '.f-strip')
+    for element in flightCards:
+        origin = element.find_element(By.CSS_SELECTOR, '.arrives')
+        print(origin.text)
+
+    # Currently prints depart time and one new line the origin airport, change it store them in the same format as Virgin
+
+
+
+
+
+
 
 
 def virginScrape(functionality, flight_type):
@@ -661,7 +676,8 @@ def virginScrape(functionality, flight_type):
     driver.delete_all_cookies()
 
     origin_airport_dropdown = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '.fsTextInput.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInput--hr6I2')))
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    '.fsTextInput.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInput--hr6I2')))
     sleep(2)
     origin_airport_dropdown.click()
     print("Print test 1")
@@ -681,13 +697,15 @@ def virginScrape(functionality, flight_type):
 
         sleep(1)
         origin_airport_clicked_textarea = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm'))
+            EC.presence_of_element_located((By.CSS_SELECTOR,
+                                            '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm'))
         )
         sleep(1)
         origin_airport_clicked_textarea.send_keys(origin_departure_value)
 
         origin_airport_dropdown_option = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
         origin_airport_dropdown_option.click()
 
     sleep(2)
@@ -698,7 +716,8 @@ def virginScrape(functionality, flight_type):
         print(arrival_airport_key, arrival_airport_value)
 
         sleep(1)
-        airport_dropdown_finder = driver.find_elements(By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
+        airport_dropdown_finder = driver.find_elements(By.CSS_SELECTOR,
+                                                       '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
         sleep(1)
         arrival_airport_dropdown = airport_dropdown_finder[1]
         # CSS is the same for origin and departure airport, so we need to find both elements as associate the index[1]
@@ -706,12 +725,13 @@ def virginScrape(functionality, flight_type):
         arrival_airport_dropdown.send_keys(arrival_airport_value)
         sleep(2)
         arrival_airport_dropdown_option = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
         arrival_airport_dropdown_option.click()
 
-
     nextButton_to_date_selection = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-FromToScreen-FromToScreen-module__fsFromToScreenFooterNextButton--VhkoZ.vaButtonPrimary')))
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-FromToScreen-FromToScreen-module__fsFromToScreenFooterNextButton--VhkoZ.vaButtonPrimary')))
     nextButton_to_date_selection.click()
 
     def click_with_retry(driver, selector, retries=5, delay=5):
@@ -740,23 +760,22 @@ def virginScrape(functionality, flight_type):
         sleep(2)
         driver.find_element(By.CSS_SELECTOR, one_way_button).click()
 
-
     monthFound = False
     departure_date_obj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
     formatted_date = departure_date_obj.strftime('%B %Y')
 
     while not monthFound:
-        leftMMYY = driver.find_element(By.CSS_SELECTOR, '.react-calendar__navigation__label__labelText.react-calendar__navigation__label__labelText--from')
+        leftMMYY = driver.find_element(By.CSS_SELECTOR,
+                                       '.react-calendar__navigation__label__labelText.react-calendar__navigation__label__labelText--from')
         if leftMMYY.text == formatted_date:
             print(f'MATCH: Left MMYY: {leftMMYY.text}, Formatted Date: {formatted_date}')
             monthFound = True
             break
         else:
             print(f'NO MATCH: Left MMYY: {leftMMYY.text}, Formatted Date: {formatted_date}')
-            nextMonthButton = driver.find_element(By.CSS_SELECTOR, '.react-calendar__navigation__arrow.react-calendar__navigation__next-button')
+            nextMonthButton = driver.find_element(By.CSS_SELECTOR,
+                                                  '.react-calendar__navigation__arrow.react-calendar__navigation__next-button')
             nextMonthButton.click()
-
-
 
     abbr_finder = driver.find_elements(By.TAG_NAME, 'abbr')
     departure_date_obj = datetime.strptime(functionality['departureDate'], '%Y-%m-%d')
@@ -775,14 +794,14 @@ def virginScrape(functionality, flight_type):
             else:
                 print(f'{abbr.text} is NOT a match to {singular_day_value}')
 
-
     after_date_selection_next_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-DatesScreen-DatesScreen-module__fsDatesScreenFooterNextButton--jfhBw.vaButtonPrimary')))
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-DatesScreen-DatesScreen-module__fsDatesScreenFooterNextButton--jfhBw.vaButtonPrimary')))
     after_date_selection_next_button.click()
 
-
     final_lets_fly_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(driver.find_element(By.CSS_SELECTOR, '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-GuestsScreen-GuestsScreen-module__fsGuestsScreenFooterNextButton--mOaeJ.vaButtonPrimary'))
+        EC.element_to_be_clickable(driver.find_element(By.CSS_SELECTOR,
+                                                       '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-GuestsScreen-GuestsScreen-module__fsGuestsScreenFooterNextButton--mOaeJ.vaButtonPrimary'))
     )
     final_lets_fly_button.click()
 
@@ -797,7 +816,6 @@ def virginScrape(functionality, flight_type):
         if len(airport_codes) >= 2:
             origin_airport_virgin_card = airport_codes[0].text
             arrival_airport_virgin_card = airport_codes[1].text
-
 
             # Use flight_card.find_element to find elements specific to this flight card
             airport_originTime = flight_card.find_element(By.CSS_SELECTOR,
@@ -817,8 +835,6 @@ def virginScrape(functionality, flight_type):
     print(results)
     driver.quit()
     return results
-
-
 
 
 if __name__ == "__main__":

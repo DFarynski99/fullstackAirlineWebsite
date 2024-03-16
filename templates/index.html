@@ -11,6 +11,11 @@
 
     <div id="websiteContainer">
 
+    <div id="headerMenu">
+
+
+    </div>
+
     <h1 id="heroshotHeading">Millions of flights at the tip of your finger.</h1>
 <form action="/" method="post">
 
@@ -19,19 +24,17 @@
 
     <label for="airline" class="visually-hidden">Choose Airline</label>
     <select id="airline" class="outerLeft" name="airline">
+      <option value="" selected disabled>Airline</option>
       <option value="jetstar">Jetstar</option>
       <option value="qantas">Qantas</option>
       <option value="regionalExpress">Rex</option>
       <option value="virgin">Virgin</option>
-
-
       <!-- Add more airlines here -->
     </select>
-    <!-- Include other form elements here -->
-    <button id="searchButton" type="submit" name="action" value="searchFlights">Search</button>
+
 
 <label for="departureAirport" class="visually-hidden">Origin</label>
-<select id="departureAirport" class='inner ' name="departureAirport">
+<select id="departureAirport" class='inner' name="departureAirport">
      <option value="" selected disabled>Origin Airport</option>
      <option value="depSydney">Sydney</option>
      <option value="depMelbourneTullamarine">Melbourne (Tullamarine)</option>
@@ -52,15 +55,17 @@
 
 <!-- Return Date Selector -->
 <label for="returnDate" class="visually-hidden">Return Date (Optional)</label>
-<input type="date" id="returnDate" class='outerRight' name="returnDate">
+<input type="date" id="returnDate" class='inner' name="returnDate">
+
+<button id="searchButton" class='outerRight' type="submit" name="action" value="searchFlights">Search</button>
+
 
 </div>
 
 </form>
 
-<div id="imageHolder">
-<img id="imageOne" src="{{ url_for('static', filename='heroshotImage.png') }}" alt="Descriptive Text">
-</div>
+
+
 
 
 <div id="flightDisplayContainer">
@@ -83,6 +88,9 @@
 
 </div>
 
+<div id="imageHolder">
+<img id="imageOne" src="{{ url_for('static', filename='heroshotImage.png') }}" alt="Descriptive Text">
+</div>
 
 </div>
 <script src="{{ url_for('static', filename='js/script.js')}}"></script>

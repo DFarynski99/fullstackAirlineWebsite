@@ -1,4 +1,8 @@
 
+html, body {
+    margin: 0;
+    padding: 0;
+}
 
 #flightDisplayContainer{
     left: 50%;
@@ -9,8 +13,8 @@
     outline: darkblue 2px dotted;
 }
 
-select, input[type=date], #searchButton {
-  width: 200px; /* Adjust the width as needed */
+select, input[type=date], .inner {
+  width: 190px; /* Adjust the width as needed */
   padding: 5px;
   margin: 10px 0;
 }
@@ -20,24 +24,33 @@ label {
   margin-top: 20px;
 }
 
+#headerMenu{
+    top: 0;
+    height: 40px;
+    width: 100%;
+    background-color: #313030;
+}
+
 #heroshotHeading{
-    font-family: serif;
-    color: white;
+    color: black;
+    text-align: center;
+    width: fit-content;
+    outline: red 2px dotted;
+    display: flex;         /* Use flexbox to layout children horizontally */
+    flex-wrap: wrap;       /* Allows items to wrap onto the next line if needed */
+    align-items: center;   /* Align items vertically in the center */
+    justify-content: center; /* Horizontally center the items in the container */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3.5rem;
+    font-family: arial, serif;
+
 
 }
 #websiteContainer{
-    outline: hotpink 6px dotted;
-
-}
-#searchButton{
-    position: absolute;
-    right: 0; /* This aligns the button to the far right */
-    top: 50%; /* Example to vertically center it */
-    transform: translateY(-50%); /* Adjust the vertical alignment */
-    background-color: transparent;
-    border: 1px solid black; /* Specify the border width and style */
-    /* Other styles for the button */
-
+    outline: hotpink 4px dotted;
+    width: 100vw;
 }
 
 #flightDetails{
@@ -46,13 +59,15 @@ label {
 }
 
 #searchFunctionContainer{
-    outline: greenyellow 5px dotted;
-    margin-top: 15vh;
+    margin-top: 5vh;
     display: flex;         /* Use flexbox to layout children horizontally */
     flex-wrap: wrap;       /* Allows items to wrap onto the next line if needed */
     align-items: center;   /* Align items vertically in the center */
     justify-content: center; /* Horizontally center the items in the container */
     position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
 }
 
 
@@ -61,7 +76,6 @@ label {
     width: 1px;
     height: 1px;
     padding: 0;
-    margin: -1px;
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     border: 0;
@@ -72,16 +86,14 @@ label {
   height: 50px;
   padding: 0; /* Adjust as needed */
   line-height: 50px; /* Match height for vertically centering text */
-  /* Other styles (borders, font size, etc.) */
 }
 .outerLeft{
   box-sizing: border-box;
   height: 50px;
   padding: 0; /* Adjust as needed */
   line-height: 50px; /* Match height for vertically centering text */
-  /* Other styles (borders, font size, etc.) */
-  border-top-left-radius: 15px;
-  border-bottom-left-radius: 15px;
+  border-top-left-radius: 15px !important;
+  border-bottom-left-radius: 15px !important;
 }
 .outerRight{
   box-sizing: border-box;
@@ -93,27 +105,25 @@ label {
 }
 .outerLeft, .inner, .outerRight{
     margin: 2px;
-    outline: none;
-    border: none;
+    border-color: black !important;
+    border-width: 2px;
+    background-color: transparent;
+    padding-left: 7px;
+    padding-right: 7px;
+    text-align: center;
+
 }
 input[type='date'] {
   /* Reset the default appearance */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  margin: 2px;
   padding: 4px; /* Example */
+  margin: 2px;
 }
 
 #imageHolder {
-
-    outline: purple 5px dotted;
-    margin-left: auto;
-    margin-right: auto;
+    outline: purple 5px dotted !important;
     position: relative;
-        height: auto; /* Maintain the aspect ratio of the image */
-    display: block; /* To enable margin auto to work */
-
+    height: auto; /* Maintain the aspect ratio of the image */
+    width: fit-content !important;
 }
 
 #imageOne {
@@ -121,5 +131,6 @@ input[type='date'] {
     display: block; /* To enable margin auto to work */
     margin-left: auto; /* Center the image horizontally */
     margin-right: auto; /* Center the image horizontally */
+    border-radius: 15px;
+    width: fit-content;
 }
-
