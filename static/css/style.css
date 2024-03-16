@@ -4,13 +4,17 @@ html, body {
     padding: 0;
 }
 
+* {
+    outline: blue 2px dotted !important;
+}
+
 #flightDisplayContainer{
     left: 50%;
     transform: translateX(-50%);
     position: relative;
     width: 80%;
     height: 80vh;
-    outline: darkblue 2px dotted;
+    outline: darkblue 2px dotted !important;
 }
 
 select, input[type=date], .inner {
@@ -45,9 +49,17 @@ label {
     transform: translateX(-50%);
     font-size: 3.5rem;
     font-family: arial, serif;
+}
 
+form{
+    outline: red 3px dotted !important;
+    width: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute; /* or fixed if you want it to stay in place even on scroll */
 
 }
+
 #websiteContainer{
     outline: hotpink 4px dotted;
     width: 100vw;
@@ -67,7 +79,8 @@ label {
     position: relative;
     left: 50%;
     transform: translateX(-50%);
-    width: fit-content;
+    width: 80%;
+    outline: hotpink 2px dotted !important;
 }
 
 
@@ -102,6 +115,8 @@ label {
   line-height: 50px; /* Match height for vertically centering text */
   border-top-right-radius: 15px !important;
   border-bottom-right-radius: 15px !important;
+  outline: hotpink 2px dotted !important;
+
 }
 .outerLeft, .inner, .outerRight{
     margin: 2px;
@@ -123,7 +138,9 @@ input[type='date'] {
     outline: purple 5px dotted !important;
     position: relative;
     height: auto; /* Maintain the aspect ratio of the image */
-    width: fit-content !important;
+    width: 80%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 #imageOne {

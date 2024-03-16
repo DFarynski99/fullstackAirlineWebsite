@@ -36,7 +36,7 @@ def home():
                 message = qantasScrape(functionality, flight_type)
 
             elif functionality['airline'] == 'regionalExpress':
-                message = rexScrape(functionality, flight_type)
+                results = virginScrape(functionality, flight_type)
 
             elif functionality['airline'] == 'virgin':
                 results = virginScrape(functionality, flight_type)
@@ -47,5 +47,5 @@ def home():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5001))
+    port = int(os.environ.get('PORT', 5003))
     app.run(host='0.0.0.0', port=port, debug=True)

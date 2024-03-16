@@ -3,7 +3,6 @@ import sys
 import time
 from datetime import datetime
 from time import sleep
-import random
 import undetected_chromedriver as uc
 from selenium import webdriver
 from selenium.common.exceptions import StaleElementReferenceException
@@ -580,7 +579,6 @@ def rexScrape(functionality, flight_type):
     formatted_numerical_date = departure_date_obj.strftime('%d').lstrip('0')  # Removes leading zero if present
     print(formatted_numerical_date)
     # First, locate the specific tbody by its XPath
-    tbody = driver.find_element(By.XPATH, '//*[@id="RexHomeMaster"]/div[3]/div[2]/div[1]/table/tbody')
 
     # Then, find all the tr elements within that tbody
     table_data = driver.find_elements(By.TAG_NAME, 'td')
@@ -634,9 +632,11 @@ def rexScrape(functionality, flight_type):
         recaptchaSubmitButton = driver.find_element(By.CSS_SELECTOR, '.btn.btn-primary.d-block.btn-wait.availCont')
         recaptchaSubmitButton.click()
 
+        print("Debug 11")
         # Switch back to the main content
         driver.switch_to.default_content()
         print("Back to default frame complete")
+        print("Debug 21")
 
         sleep(5)
 
@@ -647,18 +647,31 @@ def rexScrape(functionality, flight_type):
     WebDriverWait(driver, 20).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.f-strip'))
     )
+    print("Debug 1")
     flightCards = driver.find_elements(By.CSS_SELECTOR, '.f-strip')
+    results = []
     for element in flightCards:
-        origin = element.find_element(By.CSS_SELECTOR, '.arrives')
-        print(origin.text)
+        departsElements = element.find_element(By.CSS_SELECTOR, '.departs')
+        arrivesElements = element.find_element(By.CSS_SELECTOR, '.arrives')
 
-    # Currently prints depart time and one new line the origin airport, change it store them in the same format as Virgin
+        departTime = departsElements.find_element(By.CSS_SELECTOR, '.time').text
+        departAirport = departsElements.find_element(By.CSS_SELECTOR, '.port').text
+
+        arrivalTime = arrivesElements.find_element(By.CSS_SELECTOR, '.time').text
+        arrivalAirport = arrivesElements.find_element(By.CSS_SELECTOR, '.port').text
+
+        flight_details = {
+            'origin_airport': departAirport,
+            'arrival_airport': arrivalAirport,
+            'departure_time': departTime,
+            'arrival_time': arrivalTime
+        }
+        results.append(flight_details)
 
 
-
-
-
-
+    print(results)
+    driver.quit()
+    return results
 
 
 def virginScrape(functionality, flight_type):
