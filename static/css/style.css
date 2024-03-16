@@ -19,3 +19,8 @@ label {
   display: block; /* Makes each input appear on a new line */
   margin-top: 20px;
 }
+
+#flightDetails{
+    outline: red 2px dotted;
+    text-align: center;
+}

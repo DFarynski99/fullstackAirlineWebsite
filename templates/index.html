@@ -51,33 +51,22 @@
 </form>
 
 
+<div id="htmlBorder">
+
+
+    <div id="flightDetails">
     {% if results %}
-        <h2>Scraping Results</h2>
+
+        <h2>Flight Details</h2>
         <ul>
-            {% for price, airline, departure in results %}
-                <li>{{ price }} - {{ airline }} - {{ departure }}</li>
+            {% for flight in results %}
+                <li>{{ flight.origin_airport }} - {{ flight.arrival_airport }} - {{ flight.departure_time }} - {{ flight.arrival_time }}</li>
             {% endfor %}
         </ul>
+    {% else %}
+        <p>No flight details to display.</p>
     {% endif %}
-
-    {% if message %}
-        <p>{{ message }}</p>
-    {% endif %}
-
-
-    <div id="htmlBorder">
-
-
-
-
-
-
-
-
-
-
-
-
+    </div>
 
 
 </div>

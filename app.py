@@ -11,6 +11,8 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def home():
     message = None
+    results = None  # Initialize an empty variable for results
+
     if request.method == 'POST':
         action = request.form['action']
         if action == 'searchFlights':
@@ -37,16 +39,16 @@ def home():
                 message = rexScrape(functionality, flight_type)
 
             elif functionality['airline'] == 'virgin':
-                message = virginScrape(functionality, flight_type)
+                results = virginScrape(functionality, flight_type)
 
 
 
             elif action == 'scrapeFlights':
                 message = "Scrape Flights button pressed"
 
-    return render_template('index.html', message=message)
+    return render_template('index.html', results=results)
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 1125))
+    port = int(os.environ.get('PORT', 5001))
     app.run(host='0.0.0.0', port=port, debug=True)
