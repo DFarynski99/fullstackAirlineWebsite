@@ -678,8 +678,6 @@ def virginScrape(functionality, flight_type):
     options = uc.ChromeOptions()
     options.add_argument('--blink-settings=imagesEnabled=false')  # Example option
 
-    # Set the user agent
-
     driver = uc.Chrome(options=options)
     driver.delete_all_cookies()
     # driver.delete_all_cookies() - Use if accidentally started in --headless mode and Virgin detected

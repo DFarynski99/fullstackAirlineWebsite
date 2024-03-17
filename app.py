@@ -31,19 +31,21 @@ def home():
             if functionality['airline'] == 'jetstar':
                 # Pass the flight type to your scraping function
                 message = jetstarScrape(functionality, flight_type)
+                return render_template('jetstar_results.html', results=results)
 
             elif functionality['airline'] == 'qantas':
                 message = qantasScrape(functionality, flight_type)
+                return render_template('qantas_results.html', results=results)
 
             elif functionality['airline'] == 'regionalExpress':
                 results = virginScrape(functionality, flight_type)
+                return render_template('rex_results.html', results=results)
 
             elif functionality['airline'] == 'virgin':
                 results = virginScrape(functionality, flight_type)
+                return render_template('virgin_results.html', results=results)
 
-
-
-    return render_template('index.html', results=results)
+    return render_template('index.html')
 
 
 if __name__ == '__main__':
