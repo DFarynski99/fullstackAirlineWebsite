@@ -5,7 +5,7 @@ from datetime import datetime
 from time import sleep
 import undetected_chromedriver as uc
 from selenium import webdriver
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import StaleElementReferenceException, WebDriverException, NoSuchElementException
 from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -399,7 +399,7 @@ def qantasScrape(functionality, flight_type):
         except StaleElementReferenceException:
             # If caught, this will go back to the start of the while loop and try to find the elements again
             # Search only goes till February 2025, if user input is past this, then this will be triggered
-            #  Need better handling of this, such as blocking the option to choose date past February 2025
+            # Need better handling of this, such as blocking the option to choose date past February 2025
             continue
 
         if not month_year_found:
@@ -457,7 +457,42 @@ def qantasScrape(functionality, flight_type):
     searchFlightsButton.click()
     print("Search Flights Button (CSS) Clicked")
 
-    sleep(1000)
+    sleep(15)
+    flightCards = driver.find_elements(By.CSS_SELECTOR, '.list-of-flights__item.ng-star-inserted')
+    results = []
+    for card in flightCards:
+        departureLocation = card.find_element(By.CSS_SELECTOR, '.departure-loc').text
+        departureTime = card.find_element(By.CSS_SELECTOR, '.departure-time').text
+        arrivalLocation = card.find_element(By.CSS_SELECTOR, '.arrival-loc').text
+        arrivalTime = card.find_element(By.CSS_SELECTOR, '.arrival-time').text
+
+        # Find all price elements within the card
+        prices = card.find_elements(By.CSS_SELECTOR, '.cheapest-cash-price.collapsed.ng-star-inserted')
+
+        # Check if the prices list has the expected number of elements (2 in this case)
+        if len(prices) == 2:
+            economyPrice = prices[0].text if prices[0] else "Sold out"
+            businessPrice = prices[1].text if prices[1] else "Sold out"
+        else:
+            # If there are not enough price elements, mark them as sold out
+            economyPrice = "Sold out"
+            businessPrice = "Sold out"
+
+        flight_details = {
+            'origin_airport': departureLocation,
+            'arrival_airport': arrivalLocation,
+            'departure_time': departureTime,
+            'arrival_time': arrivalTime,
+            'economy_price': economyPrice,
+            'business_price': businessPrice
+        }
+        results.append(flight_details)
+
+    print(results)
+    driver.quit()
+    return results
+
+
 
 
 def rexScrape(functionality, flight_type):
@@ -542,9 +577,10 @@ def rexScrape(functionality, flight_type):
                 break
 
     if flight_type == 'one-way':
+        sleep(2)
         oneWayRadio = driver.find_element(By.CSS_SELECTOR, '.homebookingform-font-size')
         oneWayRadio.click()
-
+        sleep(2)
         DateCalendar1 = driver.find_element(By.CSS_SELECTOR, '.datepick-input')
         DateCalendar1.click()
 
@@ -636,7 +672,6 @@ def rexScrape(functionality, flight_type):
         # Switch back to the main content
         driver.switch_to.default_content()
         print("Back to default frame complete")
-        print("Debug 21")
 
         sleep(5)
 
@@ -650,6 +685,7 @@ def rexScrape(functionality, flight_type):
     print("Debug 1")
     flightCards = driver.find_elements(By.CSS_SELECTOR, '.f-strip')
     results = []
+
     for element in flightCards:
         departsElements = element.find_element(By.CSS_SELECTOR, '.departs')
         arrivesElements = element.find_element(By.CSS_SELECTOR, '.arrives')
@@ -660,13 +696,30 @@ def rexScrape(functionality, flight_type):
         arrivalTime = arrivesElements.find_element(By.CSS_SELECTOR, '.time').text
         arrivalAirport = arrivesElements.find_element(By.CSS_SELECTOR, '.port').text
 
+        flyEconomyElement = element.find_element(By.CSS_SELECTOR, '.fly.econ')
+        econ_currency = flyEconomyElement.find_element(By.CSS_SELECTOR, '.currency')
+        econ_dollar = flyEconomyElement.find_element(By.CSS_SELECTOR, '.dollar')
+        econ_decimal = flyEconomyElement.find_element(By.CSS_SELECTOR, '.decimal')
+
+        complete_priceEconomy = econ_currency.text + econ_dollar.text + econ_decimal.text
+
+        flyBusinessElement = element.find_element(By.CSS_SELECTOR, '.fly.biz')
+        bus_currency = flyBusinessElement.find_element(By.CSS_SELECTOR, '.currency')
+        bus_dollar = flyBusinessElement.find_element(By.CSS_SELECTOR, '.dollar')
+        bus_decimal = flyBusinessElement.find_element(By.CSS_SELECTOR, '.decimal')
+
+        complete_priceBusiness = bus_currency.text + bus_dollar.text + bus_decimal.text
+
         flight_details = {
             'origin_airport': departAirport,
             'arrival_airport': arrivalAirport,
             'departure_time': departTime,
-            'arrival_time': arrivalTime
+            'arrival_time': arrivalTime,
+            'economy_price': complete_priceEconomy,
+            'business_price': complete_priceBusiness
         }
         results.append(flight_details)
+
 
 
     print(results)
@@ -679,13 +732,9 @@ def virginScrape(functionality, flight_type):
     options.add_argument('--blink-settings=imagesEnabled=false')  # Example option
 
     driver = uc.Chrome(options=options)
-    driver.delete_all_cookies()
     # driver.delete_all_cookies() - Use if accidentally started in --headless mode and Virgin detected
     url = 'https://www.virginaustralia.com/au/en//'
     driver.get(url)
-
-    driver.delete_all_cookies()
-
     origin_airport_dropdown = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     '.fsTextInput.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInput--hr6I2')))
@@ -707,14 +756,14 @@ def virginScrape(functionality, flight_type):
         print(origin_departure_key, origin_departure_value)
 
         sleep(1)
-        origin_airport_clicked_textarea = WebDriverWait(driver, 10).until(
+        origin_airport_clicked_textarea = WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.CSS_SELECTOR,
                                             '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm'))
         )
         sleep(1)
         origin_airport_clicked_textarea.send_keys(origin_departure_value)
 
-        origin_airport_dropdown_option = WebDriverWait(driver, 10).until(
+        origin_airport_dropdown_option = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR,
                                         '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
         origin_airport_dropdown_option.click()
@@ -809,18 +858,36 @@ def virginScrape(functionality, flight_type):
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-DatesScreen-DatesScreen-module__fsDatesScreenFooterNextButton--jfhBw.vaButtonPrimary')))
     after_date_selection_next_button.click()
+    print("Clicked Next Button (Second Last)")
 
     final_lets_fly_button = WebDriverWait(driver, 30).until(
         EC.element_to_be_clickable(driver.find_element(By.CSS_SELECTOR,
                                                        '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-GuestsScreen-GuestsScreen-module__fsGuestsScreenFooterNextButton--mOaeJ.vaButtonPrimary'))
     )
-    sleep(10)
-    final_lets_fly_button.click()
+
+    try:
+        final_lets_fly_button.click()  # Attempt to click the button
+    except WebDriverException as e:
+        print(f"WebDriverException encountered: {e}")  # Print the exception message
+        print("Trying to continue...")
+        # Optionally, try to recover or retry the action here
+        time.sleep(5)  # Wait for a bit before trying again (if that makes sense in your context)
+        try:
+            # Attempt the click again or do something else to try to recover
+            final_lets_fly_button.click()
+        except WebDriverException as e:
+            # If it fails again, decide what to do next:
+            # You can continue, return, or raise the exception again
+            print(f"Retry also failed: {e}")
+
+
+    print("Clicked Lets Fly Button (Last)")
+
 
     WebDriverWait(driver, 30).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.mini-flight-summary'))
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.itinerary-part-offer-header'))
     )
-    flight_cards_mini_summary = driver.find_elements(By.CSS_SELECTOR, '.mini-flight-summary')
+    flight_cards_mini_summary = driver.find_elements(By.CSS_SELECTOR, '.itinerary-part-offer-header')
     results = []
     for flight_card in flight_cards_mini_summary:
         # Find the span with class 'code' within the flight_card element
@@ -835,13 +902,37 @@ def virginScrape(functionality, flight_type):
             airport_arrivalTime = flight_card.find_element(By.CSS_SELECTOR,
                                                            '.ducp-component-flight-times.time.destinationTime').text
 
+            # Initialize prices as "Available" (or some default value) before trying to find them
+            complete_priceEconomy = "Available"
+            complete_priceBusiness = "Available"
+
+            try:
+                economyPricing = flight_card.find_element(By.CSS_SELECTOR, '.cabin-offer.economy')
+                currencyEcon = economyPricing.find_element(By.CSS_SELECTOR, "span.currency.symbol")
+                priceNumberEcon = economyPricing.find_element(By.CSS_SELECTOR, '.number')
+                complete_priceEconomy = currencyEcon.text + priceNumberEcon.text
+            except NoSuchElementException:
+                complete_priceEconomy = "Sold out"
+
+            try:
+                businessPricing = flight_card.find_element(By.CSS_SELECTOR, '.cabin-offer.business')
+                currencyBus = businessPricing.find_element(By.CSS_SELECTOR, "span.currency.symbol")
+                priceNumberBus = businessPricing.find_element(By.CSS_SELECTOR, '.number')
+                complete_priceBusiness = currencyBus.text + priceNumberBus.text
+            except NoSuchElementException:
+                complete_priceBusiness = "Sold out"
+
+            print(f'Economy: {complete_priceEconomy} - Business: {complete_priceBusiness}')
+
             flight_details = {
-                'origin_airport': origin_airport_virgin_card,
-                'arrival_airport': arrival_airport_virgin_card,
-                'departure_time': airport_originTime,
-                'arrival_time': airport_arrivalTime
+                    'origin_airport': origin_airport_virgin_card,
+                    'arrival_airport': arrival_airport_virgin_card,
+                    'departure_time': airport_originTime,
+                    'arrival_time': airport_arrivalTime,
+                    'economy_price': complete_priceEconomy,
+                    'business_price': complete_priceBusiness
             }
-            # Append the dictionary to the results list
+        # Append the dictionary to the results list
             results.append(flight_details)
 
     print(results)

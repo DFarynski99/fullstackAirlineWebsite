@@ -2,9 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Rex Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
 </head>
 <body>
+
+This is the redirect when Rex is chosen
+
+
+<div id="websiteContainerRex">
+
+    <div id="flightDisplayContainerRex">
+
+        <div id="flightDetailsRex">
+        {% if results %}
+
+            <h2>Flight Details</h2>
+            <ul>
+                {% for flight in results %}
+                    <li>{{ flight.origin_airport }} - {{ flight.arrival_airport }} - {{ flight.departure_time }} - {{ flight.arrival_time }} - {{ flight.economy_price }} - {{flight.business_price}}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No flight details to display.</p>
+        {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
 
 </body>
 </html>

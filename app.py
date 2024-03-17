@@ -34,11 +34,11 @@ def home():
                 return render_template('jetstar_results.html', results=results)
 
             elif functionality['airline'] == 'qantas':
-                message = qantasScrape(functionality, flight_type)
+                results = qantasScrape(functionality, flight_type)
                 return render_template('qantas_results.html', results=results)
 
             elif functionality['airline'] == 'regionalExpress':
-                results = virginScrape(functionality, flight_type)
+                results = rexScrape(functionality, flight_type)
                 return render_template('rex_results.html', results=results)
 
             elif functionality['airline'] == 'virgin':
@@ -49,5 +49,5 @@ def home():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5003))
+    port = int(os.environ.get('PORT', 5005))
     app.run(host='0.0.0.0', port=port, debug=True)

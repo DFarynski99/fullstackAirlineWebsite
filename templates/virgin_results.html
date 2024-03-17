@@ -14,13 +14,13 @@ This is the redirect when Virgin is chosen
 
     <div id="flightDisplayContainerVirgin">
 
-        <div id="flightDetailsVirgin">
+        <div id="flightDetailsRex">
         {% if results %}
 
             <h2>Flight Details</h2>
             <ul>
                 {% for flight in results %}
-                    <li>{{ flight.origin_airport }} - {{ flight.arrival_airport }} - {{ flight.departure_time }} - {{ flight.arrival_time }}</li>
+                    <li>{{ flight.origin_airport }} - {{ flight.arrival_airport }} - {{ flight.departure_time }} - {{ flight.arrival_time }} - {{ flight.economy_price }} - {{flight.business_price}}</li>
                 {% endfor %}
             </ul>
         {% else %}

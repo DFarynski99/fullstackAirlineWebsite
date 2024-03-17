@@ -160,17 +160,17 @@ input[type='date'] {
 /* VIRGIN CSS */
 
 
-#flightDetailsVirgin{
+#flightDetailsVirgin, #flightDetailsRex, #flightDetailsQantas {
     outline: red 2px dotted;
     text-align: center;
 }
 
-#websiteContainerVirgin{
+#websiteContainerVirgin, #websiteContainerRex, #websiteContainerQantas{
     outline: hotpink 4px dotted;
     width: 100vw;
 }
 
-#flightDisplayContainerVirgin{
+#flightDisplayContainerVirgin, #flightDisplayContainerRex, #flightDisplayContainerQantas {
     left: 50%;
     transform: translateX(-50%);
     position: relative;
