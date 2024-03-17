@@ -5,9 +5,6 @@ html, body {
     padding: 0;
 }
 
-* {
-    outline: blue 2px dotted !important;
-}
 
 #flightDisplayContainer{
     left: 50%;

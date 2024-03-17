@@ -805,15 +805,16 @@ def virginScrape(functionality, flight_type):
             else:
                 print(f'{abbr.text} is NOT a match to {singular_day_value}')
 
-    after_date_selection_next_button = WebDriverWait(driver, 10).until(
+    after_date_selection_next_button = WebDriverWait(driver, 30).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-DatesScreen-DatesScreen-module__fsDatesScreenFooterNextButton--jfhBw.vaButtonPrimary')))
     after_date_selection_next_button.click()
 
-    final_lets_fly_button = WebDriverWait(driver, 10).until(
+    final_lets_fly_button = WebDriverWait(driver, 30).until(
         EC.element_to_be_clickable(driver.find_element(By.CSS_SELECTOR,
                                                        '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-GuestsScreen-GuestsScreen-module__fsGuestsScreenFooterNextButton--mOaeJ.vaButtonPrimary'))
     )
+    sleep(10)
     final_lets_fly_button.click()
 
     WebDriverWait(driver, 30).until(
