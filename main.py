@@ -267,6 +267,7 @@ def jetstarScrape(functionality, flight_type):
 def qantasScrape(functionality, flight_type):
     options = uc.ChromeOptions()
     options.add_argument("--start-maximized")  # Open the browser in maximized mode
+    options.add_argument("--headless")  # Open the browser in maximized mode
 
     driver = uc.Chrome(options=options)
 
