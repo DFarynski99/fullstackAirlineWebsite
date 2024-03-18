@@ -30,7 +30,7 @@ def home():
 
             if functionality['airline'] == 'jetstar':
                 # Pass the flight type to your scraping function
-                message = jetstarScrape(functionality, flight_type)
+                results = jetstarScrape(functionality, flight_type)
                 return render_template('jetstar_results.html', results=results)
 
             elif functionality['airline'] == 'qantas':
@@ -49,5 +49,5 @@ def home():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5005))
+    port = int(os.environ.get('PORT', 5006))
     app.run(host='0.0.0.0', port=port, debug=True)

@@ -226,6 +226,41 @@ def jetstarScrape(functionality, flight_type):
         print("No Captcha Found: " + e)
         pass
 
+    # Assuming `driver` is your WebDriver instance
+    allFlightCards = driver.find_elements(By.CSS_SELECTOR, '.flight-card-wrapper.js-fare-row')
+    # Calculate half the size of flightCards
+    half_size = len(allFlightCards) // 2
+    # This is the first half of the allFlightCards
+    flightCards = allFlightCards[:half_size]
+    results = []
+    for card in flightCards:
+        departureTime = card.find_element(By.CSS_SELECTOR, '.itinerary-info__time.js-departure-time.departuretime').text
+        departureAirport = card.find_element(By.CSS_SELECTOR, '.itinerary-info__airport').text
+
+        arrivalTime = card.find_elements(By.CSS_SELECTOR, '.itinerary-info__time')
+        arrivalAirport = card.find_elements(By.CSS_SELECTOR, '.itinerary-info__airport')
+
+        priceElement = card.find_element(By.CSS_SELECTOR, '.price-wrapper.pricepoint-wrapper.pricepoint-wrapper--orange')
+        priceSymbol = priceElement.find_element(By.CSS_SELECTOR, '.pricepoint__symbol')
+        priceNumber = priceElement.find_element(By.CSS_SELECTOR, '.js-price.pricepoint__middle')
+        completePrice = priceSymbol.text + priceNumber.text
+
+        print(completePrice)
+
+
+        flight_details = {
+            'origin_airport': departureAirport,
+            'arrival_airport': arrivalAirport[1].text,
+            'departure_time': departureTime,
+            'arrival_time': arrivalTime[1].text,
+            'economy_price': completePrice,
+        }
+        results.append(flight_details)
+
+    print(results)
+    driver.quit()
+    return results
+
 
 def qantasScrape(functionality, flight_type):
     options = uc.ChromeOptions()
