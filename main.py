@@ -240,13 +240,13 @@ def jetstarScrape(functionality, flight_type):
         arrivalTime = card.find_elements(By.CSS_SELECTOR, '.itinerary-info__time')
         arrivalAirport = card.find_elements(By.CSS_SELECTOR, '.itinerary-info__airport')
 
-        priceElement = card.find_element(By.CSS_SELECTOR, '.price-wrapper.pricepoint-wrapper.pricepoint-wrapper--orange')
-        priceSymbol = priceElement.find_element(By.CSS_SELECTOR, '.pricepoint__symbol')
-        priceNumber = priceElement.find_element(By.CSS_SELECTOR, '.js-price.pricepoint__middle')
-        completePrice = priceSymbol.text + priceNumber.text
-
-        print(completePrice)
-
+        try:
+            priceElement = card.find_element(By.CSS_SELECTOR, '.price-wrapper.pricepoint-wrapper.pricepoint-wrapper--orange')
+            priceSymbol = priceElement.find_element(By.CSS_SELECTOR, '.pricepoint__symbol')
+            priceNumber = priceElement.find_element(By.CSS_SELECTOR, '.js-price.pricepoint__middle')
+            completePrice = priceSymbol.text + priceNumber.text
+        except NoSuchElementException:
+            completePrice = "Sold Out"
 
         flight_details = {
             'origin_airport': departureAirport,
@@ -284,7 +284,7 @@ def qantasScrape(functionality, flight_type):
         # Add more mappings as needed
     }
 
-    menuOpen = WebDriverWait(driver, 10).until(
+    menuOpen = WebDriverWait(driver, 30).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.css-gn7407-LargeButton')))
     menuOpen.click()
 
@@ -309,11 +309,15 @@ def qantasScrape(functionality, flight_type):
     # If only a flight 'there' date was chosen, a return flight date was not selected
     if flight_type == 'one-way':
         # css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css
-        onewayDropdown = WebDriverWait(driver, 10).until(
+        onewayDropdown = WebDriverWait(driver, 30).until(
             EC.element_to_be_clickable(
-                (By.CLASS_NAME, 'css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
-        onewayDropdown.click()
-
+                (By.CSS_SELECTOR, '.css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
+        try:
+            onewayDropdown.click()
+        except Exception as e:
+            print(e)
+            driver.execute_script("arguments[0].click();", onewayDropdown)
+        sleep(1)
         one_way_selector = '.css-sgdso3-runway-dropdown__menu-item'
         try:
             click_with_retry(driver, one_way_selector)
@@ -322,7 +326,6 @@ def qantasScrape(functionality, flight_type):
             dateSelectFail = True
             print("dateSelectFail is flagged as True")
         sleep(2)
-
 
     # Else means if the flight is a return flight
     else:
@@ -344,7 +347,7 @@ def qantasScrape(functionality, flight_type):
         text_area.send_keys(origin_airport_code)
 
         print("Before origin_airport_codes")
-        sleep(4)
+        sleep(3)
         origin_airport_codes = driver.find_elements(By.CLASS_NAME, 'css-p8i965')
         print(origin_airport_codes)
 
@@ -492,7 +495,28 @@ def qantasScrape(functionality, flight_type):
     searchFlightsButton.click()
     print("Search Flights Button (CSS) Clicked")
 
-    sleep(15)
+
+    WebDriverWait(driver, 40).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.list-of-flights__item.ng-star-inserted'))
+    )
+
+    loadMoreButton = driver.find_element(By.CSS_SELECTOR,
+                                         '.btn.btn-secondary.e2e-show-more-flights-0.show-more-btn.ng-star-inserted')
+
+    try:
+        # Try to find the button by its selector
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        sleep(2)
+        # If found, click the button
+        driver.execute_script("arguments[0].click();", loadMoreButton)
+    except NoSuchElementException:
+        # If the button does not exist, skip the block
+        pass
+
+    WebDriverWait(driver, 40).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.list-of-flights__item.ng-star-inserted'))
+    )
+
     flightCards = driver.find_elements(By.CSS_SELECTOR, '.list-of-flights__item.ng-star-inserted')
     results = []
     for card in flightCards:
@@ -526,8 +550,6 @@ def qantasScrape(functionality, flight_type):
     print(results)
     driver.quit()
     return results
-
-
 
 
 def rexScrape(functionality, flight_type):
@@ -731,19 +753,27 @@ def rexScrape(functionality, flight_type):
         arrivalTime = arrivesElements.find_element(By.CSS_SELECTOR, '.time').text
         arrivalAirport = arrivesElements.find_element(By.CSS_SELECTOR, '.port').text
 
-        flyEconomyElement = element.find_element(By.CSS_SELECTOR, '.fly.econ')
-        econ_currency = flyEconomyElement.find_element(By.CSS_SELECTOR, '.currency')
-        econ_dollar = flyEconomyElement.find_element(By.CSS_SELECTOR, '.dollar')
-        econ_decimal = flyEconomyElement.find_element(By.CSS_SELECTOR, '.decimal')
+        try:
+            flyEconomyElement = element.find_element(By.CSS_SELECTOR, '.fly.econ')
+            econ_currency = flyEconomyElement.find_element(By.CSS_SELECTOR, '.currency')
+            econ_dollar = flyEconomyElement.find_element(By.CSS_SELECTOR, '.dollar')
+            econ_decimal = flyEconomyElement.find_element(By.CSS_SELECTOR, '.decimal')
 
-        complete_priceEconomy = econ_currency.text + econ_dollar.text + econ_decimal.text
+            complete_priceEconomy = econ_currency.text + econ_dollar.text + econ_decimal.text
+        except NoSuchElementException:
+            complete_priceEconomy = "Sold Out"
 
-        flyBusinessElement = element.find_element(By.CSS_SELECTOR, '.fly.biz')
-        bus_currency = flyBusinessElement.find_element(By.CSS_SELECTOR, '.currency')
-        bus_dollar = flyBusinessElement.find_element(By.CSS_SELECTOR, '.dollar')
-        bus_decimal = flyBusinessElement.find_element(By.CSS_SELECTOR, '.decimal')
 
-        complete_priceBusiness = bus_currency.text + bus_dollar.text + bus_decimal.text
+        try:
+            flyBusinessElement = element.find_element(By.CSS_SELECTOR, '.fly.biz')
+            bus_currency = flyBusinessElement.find_element(By.CSS_SELECTOR, '.currency')
+            bus_dollar = flyBusinessElement.find_element(By.CSS_SELECTOR, '.dollar')
+            bus_decimal = flyBusinessElement.find_element(By.CSS_SELECTOR, '.decimal')
+
+            complete_priceBusiness = bus_currency.text + bus_dollar.text + bus_decimal.text
+        except NoSuchElementException:
+            complete_priceBusiness = "Sold Out"
+
 
         flight_details = {
             'origin_airport': departAirport,
@@ -775,6 +805,7 @@ def virginScrape(functionality, flight_type):
                                     '.fsTextInput.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInput--hr6I2')))
     sleep(2)
     origin_airport_dropdown.click()
+    sleep(2)
     print("Print test 1")
 
     airport_code_mapping = {
@@ -784,50 +815,6 @@ def virginScrape(functionality, flight_type):
         'arrMelbourneTullamarine': 'MEL'
         # Add more mappings as needed
     }
-
-    if functionality['departureAirport']:
-        origin_departure_key = (functionality['departureAirport'])
-        origin_departure_value = airport_code_mapping[origin_departure_key]
-        print(origin_departure_key, origin_departure_value)
-
-        sleep(1)
-        origin_airport_clicked_textarea = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR,
-                                            '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm'))
-        )
-        sleep(1)
-        origin_airport_clicked_textarea.send_keys(origin_departure_value)
-
-        origin_airport_dropdown_option = WebDriverWait(driver, 30).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
-        origin_airport_dropdown_option.click()
-
-    sleep(2)
-
-    if functionality['arrivalAirport']:
-        arrival_airport_key = (functionality['arrivalAirport'])
-        arrival_airport_value = airport_code_mapping[arrival_airport_key]
-        print(arrival_airport_key, arrival_airport_value)
-
-        sleep(1)
-        airport_dropdown_finder = driver.find_elements(By.CSS_SELECTOR,
-                                                       '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
-        sleep(1)
-        arrival_airport_dropdown = airport_dropdown_finder[1]
-        # CSS is the same for origin and departure airport, so we need to find both elements as associate the index[1]
-        # to be for arrival, therefore [0] would be origin
-        arrival_airport_dropdown.send_keys(arrival_airport_value)
-        sleep(2)
-        arrival_airport_dropdown_option = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
-        arrival_airport_dropdown_option.click()
-
-    nextButton_to_date_selection = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                    '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-FromToScreen-FromToScreen-module__fsFromToScreenFooterNextButton--VhkoZ.vaButtonPrimary')))
-    nextButton_to_date_selection.click()
 
     def click_with_retry(driver, selector, retries=5, delay=5):
         """Attempts to click an element, with retries and a delay between attempts."""
@@ -845,6 +832,76 @@ def virginScrape(functionality, flight_type):
                     time.sleep(delay)
         raise Exception("Failed to click the element after several retries")
 
+
+    if functionality['departureAirport']:
+        origin_departure_key = (functionality['departureAirport'])
+        origin_departure_value = airport_code_mapping[origin_departure_key]
+        print(origin_departure_key, origin_departure_value)
+        try:
+            origin_airport_clicked_textarea = driver.find_element(By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
+
+        except NoSuchElementException:
+            sleep(2)
+            print("Triggered timeout exception for DEPARTURE AIRPORT")
+            origin_airport_dropdown.click()
+            sleep(2)
+            origin_airport_clicked_textarea = driver.find_element(By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
+
+        # origin_airport_clicked_textarea = WebDriverWait(driver, 10).until(
+            # EC.presence_of_element_located((By.CSS_SELECTOR,
+                                           #  '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm'))
+        # )
+        origin_airport_clicked_textarea.send_keys(origin_departure_value)
+
+
+        try:
+            origin_airport_dropdown_option = WebDriverWait(driver, 15).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                            '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+        except TimeoutException:
+            print("Debug Statement 1.0")
+            sleep(2)
+            origin_airport_dropdown_option = WebDriverWait(driver, 15).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                            '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+
+
+        origin_airport_dropdown_option.click()
+
+
+    if functionality['arrivalAirport']:
+        arrival_airport_key = (functionality['arrivalAirport'])
+        arrival_airport_value = airport_code_mapping[arrival_airport_key]
+        print(arrival_airport_key, arrival_airport_value)
+
+        airport_dropdown_finder = driver.find_elements(By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
+        arrival_airport_dropdown = airport_dropdown_finder[1]
+        # CSS is the same for origin and departure airport, so we need to find both elements as associate the index[1]
+        # to be for arrival, therefore [0] would be origin
+        arrival_airport_dropdown.send_keys(arrival_airport_value)
+        try:
+            arrival_airport_dropdown_option = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                            '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+        except TimeoutException:
+            sleep(2)
+            print("Triggered timeout exception for ARRIVAL AIRPORT")
+            arrival_airport_dropdown.send_keys(arrival_airport_value)
+            sleep(2)
+            arrival_airport_dropdown_option = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                            '.fsSearchOptionItemButton.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsSearchOptionItemButton--BgRYA')))
+
+
+        arrival_airport_dropdown_option.click()
+
+    nextButton_to_date_selection = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-FromToScreen-FromToScreen-module__fsFromToScreenFooterNextButton--VhkoZ.vaButtonPrimary')))
+    nextButton_to_date_selection.click()
+
+
+
     if flight_type == 'one-way':
         one_way_button = '.src-app-FlightSearchApp-components-TripSelection-TripSelection__tripSelectionBtn--wlqrl.src-app-FlightSearchApp-components-TripSelection-TripSelection__oneway--d8yhv'
         try:
@@ -852,7 +909,6 @@ def virginScrape(functionality, flight_type):
         except Exception as e:
             print(e)
             print("OneWay Click Failed")
-        sleep(2)
         driver.find_element(By.CSS_SELECTOR, one_way_button).click()
 
     monthFound = False
@@ -889,9 +945,16 @@ def virginScrape(functionality, flight_type):
             else:
                 print(f'{abbr.text} is NOT a match to {singular_day_value}')
 
-    after_date_selection_next_button = WebDriverWait(driver, 30).until(
+    try:
+        after_date_selection_next_button = WebDriverWait(driver, 15).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-DatesScreen-DatesScreen-module__fsDatesScreenFooterNextButton--jfhBw.vaButtonPrimary')))
+    except TimeoutException:
+        sleep(2)
+        after_date_selection_next_button = WebDriverWait(driver, 15).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    '.vaButton.vaThemeButton.vaTracked.src-app-FlightSearchApp-modals-screens-DatesScreen-DatesScreen-module__fsDatesScreenFooterNextButton--jfhBw.vaButtonPrimary')))
+
     after_date_selection_next_button.click()
     print("Clicked Next Button (Second Last)")
 

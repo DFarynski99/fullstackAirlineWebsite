@@ -2,35 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Rex Results</title>
+    <title>Qantas Results</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
 </head>
 <body>
 
-This is the redirect when Qantas is chosen
+<div id="flightDisplayContainerTest">
+    {% if results %}
+        <h2>Flight Details</h2>
+        {% for flight in results %}
+            <div class="flight-card">
+                <div class="flight-info">
+
+                        <div id="originInfo">
+                            <span class="originAirport">{{ flight.origin_airport }}</span>
+                            <span class="departureTime">{{ flight.departure_time }}</span>
+                        </div>
 
 
-<div id="websiteContainerQantas">
+                        <div id="arrivalInfo">
+                            <span class="destinationAirport">{{ flight.arrival_airport }}</span>
+                            <span class="arrivalTime">{{ flight.arrival_time }}</span>
+                        </div>
+                    </div>
 
-    <div id="flightDisplayContainerQantas">
 
-        <div id="flightDetailsQantas">
-        {% if results %}
+                    <div id="priceInfo">
+                        <span>Economy from:</span>
+                        <span class="economyPrice">{{ flight.economy_price }}</span>
+                        <br>
+                        <span>Business from:</span>
+                        <span class="businessPrice">{{ flight.business_price }}</span>
 
-            <h2>Flight Details</h2>
-            <ul>
-                {% for flight in results %}
-                    <li>{{ flight.origin_airport }} - {{ flight.arrival_airport }} - {{ flight.departure_time }} - {{ flight.arrival_time }} - {{ flight.economy_price }} - {{flight.business_price}}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No flight details to display.</p>
-        {% endif %}
-        </div>
-
-    </div>
-
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No flight details to display.</p>
+    {% endif %}
 </div>
+
 
 
 </body>
