@@ -14,6 +14,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium_stealth import stealth
 from twocaptcha.solver import TwoCaptcha
+from pyvirtualdisplay import Display
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
@@ -23,7 +25,7 @@ def jetstarScrape(functionality, flight_type):
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
-    # options.add_argument("--headless")  # Runs Chrome in headless mode.
+    options.add_argument("--headless")  # Runs Chrome in headless mode.
 
     # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver'
     # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
@@ -793,6 +795,8 @@ def rexScrape(functionality, flight_type):
 
 
 def virginScrape(functionality, flight_type):
+    display = Display(visible=0, size=(800, 600))
+    display.start()
     options = uc.ChromeOptions()
     options.add_argument('--blink-settings=imagesEnabled=false')  # Example option
 
@@ -1035,6 +1039,7 @@ def virginScrape(functionality, flight_type):
 
     print(results)
     driver.quit()
+    display.stop()
     return results
 
 
