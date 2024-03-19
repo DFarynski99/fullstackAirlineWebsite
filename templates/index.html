@@ -11,10 +11,6 @@
 
     <div id="websiteContainer">
 
-    <div id="headerMenu">
-
-
-    </div>
 
     <h1 id="heroshotHeading">Millions of flights at the tip of your finger.</h1>
 <form action="/" method="post">
@@ -67,9 +63,42 @@
 
 <div id="contentHolder">
 
+  <div class="card">
+    <span class="title">How To Use & Things To Avoid </span>
+    <span class="text">
+        Begin by cloning the GitHub repository and having your 2Captcha API Key
+        handy as that will be needed to bypass Rex and Jetstar ReCaptcha v2.
+        <br><br>Install the packages listed in requirements.txt, undetected-chromedriver
+        and selenium-stealth may need to be installed individually.
+        <br><br>Run the app:py file and head to http://127.0.0.1:port, with port
+        being whatever port your Flask app is listening to.
+
+        <br><br>NOTE: Running Virgin in headless mode will trigger an IP restriction.
+        Currently only local host/environment is recommended with AWS web hosting coming in the future.
+
+    </span>
+
+  </div>
+
+  <div class="card">
+    <span class="title">How It Works?</span>
+          <span class="text">
+        Upon running the program and the user visits the root URL of the Flask scraper app,
+        which allows the user to input origin/destination airport, as well as departure date
+        (return logic coming soon). The program then runs the scraping logic based on the details
+        the user has selected.
+        <br><br>The entire process from selecting the origin to destination, along with the date
+        is automated using Selenium.
+        <br><br>Upon reaching the endpoint of flight data, the program scrapes
+        relevant data including times and prices for each flight and then displays them on the HTML page.
+         </span>
+  </div>
+
+  </div>
 
 
 </div>
+
 
 </div>
 <script src="{{ url_for('static', filename='js/script.js')}}"></script>

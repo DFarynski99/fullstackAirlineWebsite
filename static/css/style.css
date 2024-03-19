@@ -17,13 +17,6 @@ label {
   margin-top: 20px;
 }
 
-#headerMenu{
-    top: 0;
-    height: 40px;
-    width: 100%;
-    background-color: #313030;
-}
-
 #heroshotHeading{
     color: black;
     text-align: center;
@@ -131,18 +124,55 @@ input[type='date'] {
 }
 
 #contentHolder {
-    outline: purple 5px dotted !important;
     position: relative;
-    height: auto; /* Maintain the aspect ratio of the image */
-    width: 80%;
-    padding: 5% 0;
-    margin-top: 2%;
-    height: 50%;
-    left: 50%;
-    transform: translateX(-50%);
+    height: auto;
+    width: 80%; /* This controls the width of the container */
+    padding-top: 2%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    max-width: 1200px; /* This controls the maximum width of the container */
+    margin: 0 auto; /* Centers the content holder */
+}
+
+.card {
+  flex: 0 1 calc(47.5% - 50px); /* Decrease the percentage and increase the pixel value to reduce card width */
+  margin: 15px; /* This provides spacing at the top and bottom of cards */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Card shadow for better visuals */
+  height: 300px; /* Fixed height, or you could make it flexible */
+  background-color: white; /* Card background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px; /* Border radius for card */
+  position: relative;
+}
+
+.title {
+  position: absolute;
+  top: 7%;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.text {
+  position: absolute;
+  top: 16%;
+  font-weight: 500;
+  font-size: 0.9rem;
+  width: 80%;
+  text-align: center;
+  height: 75%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 
+
+@media (max-width: 600px) {
+  .card {
+    flex: 0 1 calc(100% - 20px); /* Full width on small screens */
+  }
+}
 
 
 
