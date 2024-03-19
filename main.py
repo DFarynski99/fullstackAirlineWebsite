@@ -14,7 +14,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium_stealth import stealth
 from twocaptcha.solver import TwoCaptcha
-from pyvirtualdisplay import Display
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
@@ -25,7 +24,7 @@ def jetstarScrape(functionality, flight_type):
     options.add_argument("start-maximized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
-    options.add_argument("--headless")  # Runs Chrome in headless mode.
+    # options.add_argument("--headless")  # Runs Chrome in headless mode.
 
     # pathMac = '/Users/daniel/Downloads/chromedriver-mac-x64/chromedriver'
     # pathWindows = 'C:\\Users\\NZXT\\chromedriver-win64\\chromedriver.exe'
@@ -54,6 +53,7 @@ def jetstarScrape(functionality, flight_type):
     start_time = time.time()  # Start time before clicking the search button
     # Perform any necessary actions to establish your session
     # Include these cookies in subsequent requests or actions
+    api_key = input("Enter 2Catpcha API Key: ")
     wait = WebDriverWait(driver, 20)
 
     combobox_panels = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "comboboxpanel_panel__8Zbd2")))
@@ -177,7 +177,6 @@ def jetstarScrape(functionality, flight_type):
         pass
 
     # Replace 'YOUR_2CAPTCHA_API_KEY' with your actual 2Captcha API key
-    api_key = 'c4d24eaca65b2982a0710f09c28d8dbe'
 
     solver = TwoCaptcha(api_key)
     try:
@@ -266,9 +265,9 @@ def jetstarScrape(functionality, flight_type):
 
 def qantasScrape(functionality, flight_type):
     options = uc.ChromeOptions()
-    options.add_argument("--start-maximized")  # Open the browser in maximized mode
-    options.add_argument("--headless")  # Open the browser in maximized mode
-
+    options = Options()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     driver = uc.Chrome(options=options)
 
     url = 'https://www.qantas.com/au/en.html'
@@ -312,12 +311,20 @@ def qantasScrape(functionality, flight_type):
     # If only a flight 'there' date was chosen, a return flight date was not selected
     if flight_type == 'one-way':
         # css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css
-        onewayDropdown = WebDriverWait(driver, 30).until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, '.css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
+
         try:
+            onewayDropdown = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR,
+                     '.css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
             onewayDropdown.click()
         except Exception as e:
+            sleep(2)
+            onewayDropdown = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR,
+                     '.css-g0vn4r-DropdownMenu-DropdownMenu-overrideClassName-ButtonBase-ButtonBase-css')))
+
             print(e)
             driver.execute_script("arguments[0].click();", onewayDropdown)
         sleep(1)
@@ -586,6 +593,7 @@ def rexScrape(functionality, flight_type):
 
     url = 'https://www.rex.com.au/'
     driver.get(url)
+    api_key = input("Enter 2Catpcha API Key: ")
 
     originAirportDropdown = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.ID, 'ContentPlaceHolder1_BookingHomepage1_OriginAirport')))
@@ -695,9 +703,6 @@ def rexScrape(functionality, flight_type):
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.BookNowbtn')))
     bookNowButton.click()
 
-    # sitekey = '6LfNWukUAAAAAAGvs5JOmzYUR-xSDIJH_Vi7z35I',
-    # url = 'https://ibe2.rex.com.au/AvailFlight'
-    api_key = 'c4d24eaca65b2982a0710f09c28d8dbe'
 
     solver = TwoCaptcha(api_key)
 
@@ -796,8 +801,6 @@ def rexScrape(functionality, flight_type):
 
 
 def virginScrape(functionality, flight_type):
-    display = Display(visible=0, size=(800, 600))
-    display.start()
     options = uc.ChromeOptions()
     options.add_argument('--blink-settings=imagesEnabled=false')  # Example option
 
@@ -852,10 +855,6 @@ def virginScrape(functionality, flight_type):
             sleep(2)
             origin_airport_clicked_textarea = driver.find_element(By.CSS_SELECTOR, '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm')
 
-        # origin_airport_clicked_textarea = WebDriverWait(driver, 10).until(
-            # EC.presence_of_element_located((By.CSS_SELECTOR,
-                                           #  '.fsTextInputInput.vaThemeText.gb_unmask.src-app-FlightSearchApp-components-TextInput-TextInput-module__fsTextInputInput--e0oZm'))
-        # )
         origin_airport_clicked_textarea.send_keys(origin_departure_value)
 
 
@@ -1040,7 +1039,6 @@ def virginScrape(functionality, flight_type):
 
     print(results)
     driver.quit()
-    display.stop()
     return results
 
 

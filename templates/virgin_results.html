@@ -6,10 +6,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
 </head>
 <body>
-
 <div id="flightDisplayContainerTest">
     {% if results %}
         <h2>Flight Details</h2>
+<button id="backButtonButton" onclick="goBack()">Back To Home</button>
         {% for flight in results %}
             <div class="flight-card">
                 <div class="flight-info">
@@ -43,6 +43,6 @@
 </div>
 
 
-
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

@@ -108,6 +108,22 @@ form{
     text-align: center;
 
 }
+/* Apply Flexbox layout to the body to center its children */
+
+
+#backButtonButton {
+  margin: 2px;
+  border-color: black !important;
+  border-width: 3px;
+  background-color: transparent;
+  padding-left: 7px;
+  padding-right: 7px;
+  text-align: center;
+  height: 50px; /* Example: setting a fixed height */
+  width: 200px;
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+}
+
 input[type='date'] {
   /* Reset the default appearance */
   padding: 4px; /* Example */
