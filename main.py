@@ -53,7 +53,8 @@ def jetstarScrape(functionality, flight_type):
     start_time = time.time()  # Start time before clicking the search button
     # Perform any necessary actions to establish your session
     # Include these cookies in subsequent requests or actions
-    api_key = input("Enter 2Catpcha API Key: ")
+    # api_key = input("Enter 2Catpcha API Key: ")
+    api_key = 'c4d24eaca65b2982a0710f09c28d8dbe'
     wait = WebDriverWait(driver, 20)
 
     combobox_panels = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "comboboxpanel_panel__8Zbd2")))
@@ -74,17 +75,140 @@ def jetstarScrape(functionality, flight_type):
                                                                                 ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
         melbourneTullamarine_departure_option.click()
 
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depAdelaide':
+        adelaide_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Adelaide - ADL')]")
+        adelaide_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depBrisbane':
+        brisbane_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Brisbane - BNE')]")
+        brisbane_departure_option.click()
+
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depCairns':
+        cairns_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Cairns - CNS')]")
+        cairns_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depDarwin':
+        darwin_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Darwin - DRW')]")
+        darwin_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depGoldCoast':
+        goldcoast_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Gold Coast - OOL')]")
+        goldcoast_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depHobart':
+        hobart_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Hobart - HBA')]")
+        hobart_departure_option.click()
+
+
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depLaunceston':
+        launceston_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Launceston - LST')]")
+        launceston_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depMackay':
+        mackay_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Mackay - MKY')]")
+        mackay_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depMelbourneAvalon':
+        melbourneAvalon_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Melbourne (Avalon) - AVV')]")
+        melbourneAvalon_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depNewcastle':
+        newcastle_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Newcastle - NTL')]")
+        newcastle_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depPerth':
+        perth_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Perth - PER')]")
+        perth_departure_option.click()
+
+    elif 'departureAirport' in functionality and functionality['departureAirport'] == 'depTownsville':
+        townsville_departure_option = departure_combobox.find_element(By.XPATH,
+                                                                                ".//div[contains(text(), 'Townsville - TSV')]")
+        townsville_departure_option.click()
+
+
+
+
+
+
     arrivalAirportDropdownXPath = driver.find_element(By.CSS_SELECTOR, '[data-testid="destination"]')
     arrivalAirportDropdownXPath.click()
 
     if 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrSydney':
-        sydney_arrival_option = destination_combobox.find_element(By.XPATH,
-                                                                  ".//div[contains(text(), 'Sydney - SYD')]")
+        sydney_arrival_option = destination_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Sydney - SYD')]")
         sydney_arrival_option.click()
+
     elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrMelbourneTullamarine':
         melbourneTullamarine_arrival_option = destination_combobox.find_element(By.XPATH,
                                                                                 ".//div[contains(text(), 'Melbourne (Tullamarine) - MEL')]")
         melbourneTullamarine_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrAdelaide':
+        adelaide_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                    ".//div[contains(text(), 'Adelaide - ADL')]")
+        adelaide_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrBrisbane':
+        brisbane_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                    ".//div[contains(text(), 'Brisbane - BNE')]")
+        brisbane_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrCairns':
+        cairns_arrival_option = destination_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Cairns - CNS')]")
+        cairns_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrDarwin':
+        darwin_arrival_option = destination_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Darwin - DRW')]")
+        darwin_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrGoldCoast':
+        goldcoast_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                     ".//div[contains(text(), 'Gold Coast - OOL')]")
+        goldcoast_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrHobart':
+        hobart_arrival_option = destination_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Hobart - HBA')]")
+        hobart_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrLaunceston':
+        launceston_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                      ".//div[contains(text(), 'Launceston - LST')]")
+        launceston_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrMackay':
+        mackay_arrival_option = destination_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Mackay - MKY')]")
+        mackay_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrMelbourneAvalon':
+        melbourneAvalon_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                           ".//div[contains(text(), 'Melbourne (Avalon) - AVV')]")
+        melbourneAvalon_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrNewcastle':
+        newcastle_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                     ".//div[contains(text(), 'Newcastle - NTL')]")
+        newcastle_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrPerth':
+        perth_arrival_option = destination_combobox.find_element(By.XPATH, ".//div[contains(text(), 'Perth - PER')]")
+        perth_arrival_option.click()
+
+    elif 'arrivalAirport' in functionality and functionality['arrivalAirport'] == 'arrTownsville':
+        townsville_arrival_option = destination_combobox.find_element(By.XPATH,
+                                                                      ".//div[contains(text(), 'Townsville - TSV')]")
+        townsville_arrival_option.click()
 
     # Handle one-way flight logic
     if flight_type == 'one-way':
@@ -265,17 +389,15 @@ def jetstarScrape(functionality, flight_type):
 
 def qantasScrape(functionality, flight_type):
     options = uc.ChromeOptions()
-    options = Options()
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    driver = uc.Chrome(options=options)
+    # Specify your version of Chrome if `undetected-chromedriver` is picking the wrong version
+    driver = uc.Chrome(version_main=122, options=options)  # Use an integer for the major version
 
     url = 'https://www.qantas.com/au/en.html'
     driver.get(url)
     driver.maximize_window()
-    start_time = time.time()  # Start time before clicking the search button
-    # Perform any necessary actions to establish your session
-    # Include these cookies in subsequent requests or actions
+
     wait = WebDriverWait(driver, 10)
 
     airport_code_mapping = {
@@ -593,7 +715,8 @@ def rexScrape(functionality, flight_type):
 
     url = 'https://www.rex.com.au/'
     driver.get(url)
-    api_key = input("Enter 2Catpcha API Key: ")
+    # api_key = input("Enter 2Catpcha API Key: ")
+    api_key = 'c4d24eaca65b2982a0710f09c28d8dbe'
 
     originAirportDropdown = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.ID, 'ContentPlaceHolder1_BookingHomepage1_OriginAirport')))
@@ -804,7 +927,7 @@ def virginScrape(functionality, flight_type):
     options = uc.ChromeOptions()
     options.add_argument('--blink-settings=imagesEnabled=false')  # Example option
 
-    driver = uc.Chrome(options=options)
+    driver = uc.Chrome(version_main=122, options=options)  # Use an integer for the major version
     # driver.delete_all_cookies() - Use if accidentally started in --headless mode and Virgin detected
     url = 'https://www.virginaustralia.com/au/en//'
     driver.get(url)

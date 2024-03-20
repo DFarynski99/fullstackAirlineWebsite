@@ -34,6 +34,22 @@
      <option value="" selected disabled>Origin Airport</option>
      <option value="depSydney">Sydney</option>
      <option value="depMelbourneTullamarine">Melbourne (Tullamarine)</option>
+
+    <!-- Jetstar -->
+     <option value="depAdelaide">Adelaide</option>
+     <option value="depBrisbane">Brisbane</option>
+     <option value="depCairns">Cairns</option>
+     <option value="depCanberra">Canberra</option>
+     <option value="depDarwin">Darwin</option>
+     <option value="depGoldCoast">Gold Coast</option>
+     <option value="depHobart">Hobart</option>
+     <option value="depLaunceston">Launceston</option>
+     <option value="depMackay">Mackay</option>
+     <option value="depMelbourneAvalon">Melbourne (Avalon)</option>
+     <option value="depNewcastle">Newcastle - Port Stephens</option>
+     <option value="depPerth">Perth</option>
+     <option value="depTownsville">Townsville</option>
+
 </select>
 
 <label for="arrivalAirport" class="visually-hidden">Destination</label>
@@ -41,7 +57,24 @@
   <option value="" selected disabled>Destination Airport</option>
   <option value="arrSydney">Sydney</option>
   <option value="arrMelbourneTullamarine">Melbourne (Tullamarine)</option>
-  <!-- Add more airlines here -->
+
+
+     <!-- Jetstar -->
+  <option class="jetstar" value="arrAdelaide">Adelaide</option>
+  <option class="jetstar" value="arrBrisbane">Brisbane</option>
+  <option class="jetstar" value="arrCairns">Cairns</option>
+  <option class="jetstar" value="arrCanberra">Canberra</option>
+  <option class="jetstar" value="arrDarwin">Darwin</option>
+  <option class="jetstar" value="arrGoldCoast">Gold Coast</option>
+  <option class="jetstar" value="arrHobart">Hobart</option>
+  <option class="jetstar" value="arrLaunceston">Launceston</option>
+  <option class="jetstar" value="arrMackay">Mackay</option>
+  <option value="arrMelbourneAvalon">Melbourne (Avalon)</option>
+  <option value="arrNewcastle">Newcastle - Port Stephens</option>
+  <option value="arrPerth">Perth</option>
+  <option value="arrTownsville">Townsville</option>
+
+
 </select>
 
 
@@ -49,9 +82,9 @@
 <label for="departureDate" class="visually-hidden">Departure Date</label>
 <input type="date" id="departureDate" class='inner' name="departureDate">
 
-<!-- Return Date Selector -->
+<!-- Return Date Selector
 <label for="returnDate" class="visually-hidden">Return Date (Optional)</label>
-<input type="date" id="returnDate" class='inner' name="returnDate">
+<input type="date" id="returnDate" class='inner' name="returnDate"> -->
 
 <button id="searchButton" class='outerRight' type="submit" name="action" value="searchFlights">Search</button>
 
@@ -68,8 +101,10 @@
     <span class="text">
         Begin by cloning the GitHub repository and having your 2Captcha API Key
         handy as that will be needed to bypass Rex and Jetstar ReCaptcha v2.
-        <br><br>Install the packages listed in requirements.txt, undetected-chromedriver
-        and selenium-stealth may need to be installed individually.
+        <br><br>Install the packages listed in requirements.txt,
+        <br>Undetected-Chromedriver is needed
+        for Qantas and Virgin, whereas regular Chromedriver works for Jetstar and Rex.
+        <br>Head to the initialisation line of Chromedriver/UC and edit the path to Chromedriver (for each airline).
         <br><br>Run the app:py file and head to http://127.0.0.1:port, with port
         being whatever port your Flask app is listening to.
 
@@ -91,6 +126,8 @@
         is automated using Selenium.
         <br><br>Upon reaching the endpoint of flight data, the program scrapes
         relevant data including times and prices for each flight and then displays them on the HTML page.
+        <br><br>NOTE: Some flights, typically longer/more expensive than the rest, are flights with connections offered
+              by the airline <br>(on Qantas the result page will show the destination to be the destination of leg 1).
          </span>
   </div>
 
