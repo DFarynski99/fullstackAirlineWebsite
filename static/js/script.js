@@ -13,23 +13,89 @@ function goBack() {
 document.addEventListener('DOMContentLoaded', function() {
     const airlineSelection = document.getElementById('airline');
     const departureAirport = document.getElementById('departureAirport');
-    const allAirports = departureAirport.innerHTML; // Save all options to restore them when needed
+    const arrivalAirport = document.getElementById('arrivalAirport');
+    const allAirportsDep = departureAirport.innerHTML; // Save all options to restore them when needed
+    const allAirportsArr = arrivalAirport.innerHTML;
 
     airlineSelection.addEventListener('change', function() {
         const airline = this.value;
-        departureAirport.innerHTML = allAirports; // Reset to all airports on every change
+        departureAirport.innerHTML = allAirportsDep; // Reset to all airports on every change
+        arrivalAirport.innerHTML = allAirportsArr;
 
-        // Example: If airline is Rex, only show specific airports
         if (airline === 'regionalExpress') {
-            const allowedAirports = ['depSydney', 'depMelbourneTullamarine']; // Specify allowed values for Rex
-            filterAirports(allowedAirports);
+            const allowedDepAirports = ['', 'depSydney', 'depMelbourneTullamarine', 'depAdelaide', 'depBrisbane', 'depGoldCoast']; // Specify allowed values for Rex
+            const allowedArrAirports = ['', 'arrSydney', 'arrMelbourneTullamarine', 'arrAdelaide', 'arrBrisbane', 'arrGoldCoast']
+            filterAirportsOrigin(allowedDepAirports);
+            filterAirportsArrival(allowedArrAirports);
         }
-        // Add more conditions for other airlines here
-        // Example: if (airline === 'jetstar') { ... }
+
+        else if (airline === 'qantas'){
+            const allowedDepAirports = ['', 'depSydney', 'depMelbourneTullamarine', 'depAdelaide', 'depBrisbane', 'depGoldCoast', 'depHobart', 'depPerth']; // Specify allowed values for Rex
+            const allowedArrAirports = ['', 'arrSydney', 'arrMelbourneTullamarine', 'arrAdelaide', 'arrBrisbane', 'arrGoldCoast', 'arrHobart', 'arrPerth']
+            filterAirportsOrigin(allowedDepAirports);
+            filterAirportsArrival(allowedArrAirports);
+        }
+
+        else if (airline === 'virgin'){
+            const allowedDepAirports = ['', 'depSydney', 'depMelbourneTullamarine', 'depAdelaide', 'depBrisbane', 'depGoldCoast', 'depHobart', 'depPerth']; // Specify allowed values for Rex
+            const allowedArrAirports = ['', 'arrSydney', 'arrMelbourneTullamarine', 'arrAdelaide', 'arrBrisbane', 'arrGoldCoast', 'arrHobart', 'arrPerth']
+            filterAirportsOrigin(allowedDepAirports);
+            filterAirportsArrival(allowedArrAirports);
+        }
+
+        else if (airline === 'jetstar'){
+            const allowedDepAirports = [
+                '',
+                'depSydney',
+                'depMelbourneTullamarine',
+                'depAdelaide',
+                'depBrisbane',
+                'depCairns',
+                'depCanberra',
+                'depDarwin',
+                'depGoldCoast',
+                'depHobart',
+                'depLaunceston',
+                'depMackay',
+                'depMelbourneAvalon',
+                'depNewcastle',
+                'depPerth',
+                'depTownsville'
+            ];
+            const allowedArrAirports = [
+                '',
+                'arrSydney',
+                'arrMelbourneTullamarine',
+                'arrAdelaide',
+                'arrBrisbane',
+                'arrCairns',
+                'arrCanberra',
+                'arrDarwin',
+                'arrGoldCoast',
+                'arrHobart',
+                'arrLaunceston',
+                'arrMackay',
+                'arrMelbourneAvalon',
+                'arrNewcastle',
+                'arrPerth',
+                'arrTownsville'
+            ];
+            filterAirportsOrigin(allowedDepAirports);
+            filterAirportsArrival(allowedArrAirports);
+        }
+
     });
 
-    function filterAirports(allowedValues) {
+    function filterAirportsOrigin(allowedValues) {
         Array.from(departureAirport.options).forEach(option => {
+            if (!allowedValues.includes(option.value)) {
+                option.remove(); // Remove options not in the allowed list
+            }
+        });
+    }
+
+    function filterAirportsArrival(allowedValues) {
+        Array.from(arrivalAirport.options).forEach(option => {
             if (!allowedValues.includes(option.value)) {
                 option.remove(); // Remove options not in the allowed list
             }

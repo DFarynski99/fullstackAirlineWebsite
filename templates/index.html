@@ -32,10 +32,9 @@
 <label for="departureAirport" class="visually-hidden">Origin</label>
 <select id="departureAirport" class='inner' name="departureAirport">
      <option value="" selected disabled>Origin Airport</option>
+
      <option value="depSydney">Sydney</option>
      <option value="depMelbourneTullamarine">Melbourne (Tullamarine)</option>
-
-    <!-- Jetstar -->
      <option value="depAdelaide">Adelaide</option>
      <option value="depBrisbane">Brisbane</option>
      <option value="depCairns">Cairns</option>
@@ -50,25 +49,26 @@
      <option value="depPerth">Perth</option>
      <option value="depTownsville">Townsville</option>
 
+
+
+
 </select>
 
 <label for="arrivalAirport" class="visually-hidden">Destination</label>
 <select id="arrivalAirport" class='inner' name="arrivalAirport">
   <option value="" selected disabled>Destination Airport</option>
+
   <option value="arrSydney">Sydney</option>
   <option value="arrMelbourneTullamarine">Melbourne (Tullamarine)</option>
-
-
-     <!-- Jetstar -->
-  <option class="jetstar" value="arrAdelaide">Adelaide</option>
-  <option class="jetstar" value="arrBrisbane">Brisbane</option>
-  <option class="jetstar" value="arrCairns">Cairns</option>
-  <option class="jetstar" value="arrCanberra">Canberra</option>
-  <option class="jetstar" value="arrDarwin">Darwin</option>
-  <option class="jetstar" value="arrGoldCoast">Gold Coast</option>
-  <option class="jetstar" value="arrHobart">Hobart</option>
-  <option class="jetstar" value="arrLaunceston">Launceston</option>
-  <option class="jetstar" value="arrMackay">Mackay</option>
+  <option value="arrAdelaide">Adelaide</option>
+  <option value="arrBrisbane">Brisbane</option>
+  <option value="arrCairns">Cairns</option>
+  <option value="arrCanberra">Canberra</option>
+  <option value="arrDarwin">Darwin</option>
+  <option value="arrGoldCoast">Gold Coast</option>
+  <option value="arrHobart">Hobart</option>
+  <option value="arrLaunceston">Launceston</option>
+  <option value="arrMackay">Mackay</option>
   <option value="arrMelbourneAvalon">Melbourne (Avalon)</option>
   <option value="arrNewcastle">Newcastle - Port Stephens</option>
   <option value="arrPerth">Perth</option>
@@ -139,5 +139,11 @@
 
 </div>
 <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+        document.getElementById('departureDate').setAttribute('min', today); // Set the min attribute to today
+    });
+</script>
 </body>
 </html>

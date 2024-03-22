@@ -6,7 +6,7 @@ from main import rexScrape
 from main import virginScrape
 
 app = Flask(__name__)
-# Flask App
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home():

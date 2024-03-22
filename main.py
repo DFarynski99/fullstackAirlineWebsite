@@ -403,9 +403,18 @@ def qantasScrape(functionality, flight_type):
     airport_code_mapping = {
         'depSydney': 'SYD',
         'depMelbourneTullamarine': 'MEL',
+        'depAdelaide': 'ADL',
+        'depBrisbane': 'BNE',
+        'depGoldCoast': 'OOL',
+        'depHobart': 'HBA',
+        'depPerth': 'PER',
         'arrSydney': 'SYD',
-        'arrMelbourneTullamarine': 'MEL'
-        # Add more mappings as needed
+        'arrMelbourneTullamarine': 'MEL',
+        'arrAdelaide': 'ADL',
+        'arrBrisbane': 'BNE',
+        'arrGoldCoast': 'OOL',
+        'arrHobart': 'HBA',
+        'arrPerth': 'PER',
     }
 
     menuOpen = WebDriverWait(driver, 30).until(
@@ -725,9 +734,14 @@ def rexScrape(functionality, flight_type):
     airport_code_mapping = {
         'depSydney': 'SYD',
         'depMelbourneTullamarine': 'MEL',
+        'depAdelaide': 'ADL',
+        'depBrisbane': 'BNE',
+        'depGoldCoast': 'OOL',
         'arrSydney': 'SYD',
-        'arrMelbourneTullamarine': 'MEL'
-        # Add more mappings as needed
+        'arrMelbourneTullamarine': 'MEL',
+        'arrAdelaide': 'ADL',
+        'arrBrisbane': 'BNE',
+        'arrGoldCoast': 'OOL',
     }
 
     if 'departureAirport' in functionality:
@@ -762,6 +776,27 @@ def rexScrape(functionality, flight_type):
 
             elif option.get_attribute('value') == 'MEL':
                 print("Found Melbourne: ", option.text)
+                driver.execute_script("arguments[0].scrollIntoView(true);", option)
+                option.click()
+                driver.execute_script("arguments[0].click();", option)
+                break
+
+            elif option.get_attribute('value') == 'BNE':
+                print("Found Brisbane: ", option.text)
+                driver.execute_script("arguments[0].scrollIntoView(true);", option)
+                option.click()
+                driver.execute_script("arguments[0].click();", option)
+                break
+
+            elif option.get_attribute('value') == 'ADL':
+                print("Found Adelaide: ", option.text)
+                driver.execute_script("arguments[0].scrollIntoView(true);", option)
+                option.click()
+                driver.execute_script("arguments[0].click();", option)
+                break
+
+            elif option.get_attribute('value') == 'OOL':
+                print("Found Gold Coast: ", option.text)
                 driver.execute_script("arguments[0].scrollIntoView(true);", option)
                 option.click()
                 driver.execute_script("arguments[0].click();", option)
@@ -942,9 +977,18 @@ def virginScrape(functionality, flight_type):
     airport_code_mapping = {
         'depSydney': 'SYD',
         'depMelbourneTullamarine': 'MEL',
+        'depAdelaide': 'ADL',
+        'depBrisbane': 'BNE',
+        'depGoldCoast': 'OOL',
+        'depHobart': 'HBA',
+        'depPerth': 'PER',
         'arrSydney': 'SYD',
-        'arrMelbourneTullamarine': 'MEL'
-        # Add more mappings as needed
+        'arrMelbourneTullamarine': 'MEL',
+        'arrAdelaide': 'ADL',
+        'arrBrisbane': 'BNE',
+        'arrGoldCoast': 'OOL',
+        'arrHobart': 'HBA',
+        'arrPerth': 'PER',
     }
 
     def click_with_retry(driver, selector, retries=5, delay=5):
