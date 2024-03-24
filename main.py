@@ -18,7 +18,7 @@ from twocaptcha.solver import TwoCaptcha
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-
+# function for Jetstar scraping
 def jetstarScrape(functionality, flight_type):
     options = Options()
     options.add_argument("start-maximized")
