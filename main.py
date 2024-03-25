@@ -387,6 +387,7 @@ def jetstarScrape(functionality, flight_type):
     return results
 
 
+# function for Qantas scraping
 def qantasScrape(functionality, flight_type):
     options = uc.ChromeOptions()
     options.add_argument("--no-sandbox")
